@@ -82,21 +82,3 @@ This project is licensed under the MIT License.
 
 💬 Contributing
 Feel free to open an issue or pull request if you’d like to improve TrackO! 😊
-
-
-
-
-
-
-
-
-
-
-
-
-
-Search
-
-Reason
-
-C
