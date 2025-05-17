@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
-
 import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
 import { IoMdCard } from "react-icons/io";
-
 import { useNavigate } from "react-router-dom";
 import InfoCard from "../../components/cards/InfoCard";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { addThousandsSeparator } from "../../utils/helper";
-import RecentTransactions from "../../components/Dashboard/RecentTransactions";
 import FinanceOverview from "../../components/Dashboard/FinanceOverview";
 import ExpenseTransactions from "../../components/Dashboard/ExpenseTransactions";
 import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
@@ -77,12 +74,7 @@ const Home = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <RecentTransactions
-            transactions={dashboardData?.recentTransactions}
-            onSeeMore={() => navigate("/expense")}
-          />
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <FinanceOverview
             totalBalance={dashboardData?.totalBalance || 0}
             totalIncome={dashboardData?.totalIncome || 0}

@@ -1,8 +1,24 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'SequelSans';
+  src: url('/fonts/SequelSans-DisplayBook.DS_QNCiF.woff2') format('woff2'),
+       url('/fonts/SequelSans-DisplayBook.DLCIhagA.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SequelSans';
+  src: url('/fonts/SequelSans-DisplayMedium.BYsR-9NK.woff2') format('woff2'),
+       url('/fonts/SequelSans-DisplayMedium.Ct-o4rqY.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+
 @theme {
-  --font-display: "Poppins", "sans-serif";
+  --font-display: "SequelSans", "Inter", system-ui, -apple-system, sans-serif;
   --breakpoint-3xl: 1920px;
   --color-primary: #875cf5;
 }
@@ -12,6 +28,14 @@
     font-family: var(--font-display);
   }
 
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
   body {
     background-color: #fcfbfc;
     overflow-x: hidden;

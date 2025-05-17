@@ -71,7 +71,7 @@ const Expense = () => {
     try {
       await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, {
         category,
-        amount,
+        amount: amount, // The amount will now be in Rupees
         date,
         icon,
       });

@@ -1,13 +1,25 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 import CARD_2 from "../../assets/images/card2.png";
-import { LuTrendingUpDown } from "react-icons/lu";
+import { LuTrendingUpDown, LuArrowLeft } from "react-icons/lu";
 
 const AuthLayout = ({ children }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex">
       <div className="w-screen h-screen md:w-[60vw] px-12 pt-8 pb-12">
-        <h2 className="text-lg font-medium text-black">Expense Tracker</h2>
+        <div className="flex items-center gap-4 mb-8">
+          <button 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors"
+          >
+            <LuArrowLeft className="text-xl" />
+            <span></span>
+          </button>
+          <h2 className="text-lg font-medium text-black">TrackO</h2>
+        </div>
         {children}
       </div>
 
@@ -44,7 +56,7 @@ const StatsInfoCard = ({ icon, label, value, color }) => {
       </div>
       <div>
         <h6 className="text-xs text-gray-500 mb-1">{label}</h6>
-        <span className="text-[20px]">${value}</span>
+        <span className="text-[20px]">₹{value}</span>
       </div>
     </div>
   );
