@@ -25,4 +25,8 @@ export const API_PATHS = {
   IMAGE: {
     UPLOAD_IMAGE: "/api/v1/auth/upload-image",
   },
+  BUDGET: {
+    SAVE_BUDGETS: "/api/v1/budget/save",
+    GET_BUDGETS: "/api/v1/budget/get"
+  }
 };

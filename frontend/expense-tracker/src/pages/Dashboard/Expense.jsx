@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
-
+import BudgetManager from '../../components/Budget/BudgetManager';
+import Save from '../../components/Save/Save';
 import { useNavigate } from "react-router-dom";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import axiosInstance from "../../utils/axiosInstance";
@@ -134,6 +135,14 @@ const Expense = () => {
     return () => {};
   }, []);
 
+  const [budgetData, setBudgetData] = useState([
+    { category: 'Food', amount: 500 },
+    { category: 'Entertainment', amount: 300 },
+    // Add more budget categories as needed
+  ]);
+
+  const [budgets, setBudgets] = useState([]);
+
   return (
     <DashboardLayout activeMenu="Expense">
       <div className="my-5 mx-auto">
@@ -144,7 +153,6 @@ const Expense = () => {
               onExpenseIncome={() => setOpenAddExpenseModal(true)}
             />
           </div>
-
           <ExpenseList
             transactions={expenseData}
             onDelete={(id) => {
@@ -173,8 +181,27 @@ const Expense = () => {
           </Modal>
         </div>
       </div>
+      
+
     </DashboardLayout>
   );
 };
 
 export default Expense;
+
+  // Add a handler for budget updates
+  const handleBudgetUpdate = (category, amount) => {
+    setBudgets(prev => {
+      const existingBudgetIndex = prev.findIndex(
+        b => b.category.toLowerCase() === category.toLowerCase()
+      );
+      
+      if (existingBudgetIndex >= 0) {
+        const newBudgets = [...prev];
+        newBudgets[existingBudgetIndex] = { category, amount };
+        return newBudgets;
+      }
+      
+      return [...prev, { category, amount }];
+    });
+  };

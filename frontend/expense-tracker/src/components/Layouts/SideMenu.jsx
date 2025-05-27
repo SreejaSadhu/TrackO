@@ -49,8 +49,10 @@ const SideMenu = ({ activeMenu }) => {
         <button
           key={`menu_${index}`}
           className={`w-full flex items-center gap-4 text-[15px] ${
-            activeMenu === item.label ? "text-white bg-primary" : ""
-          } py-3 px-6 rounded-lg mb-3`}
+            activeMenu === item.path 
+              ? "text-white bg-primary" 
+              : "text-black hover:text-white hover:bg-primary"
+          } py-3 px-6 rounded-lg mb-3 transition-colors duration-200`}
           onClick={() => handleClick(item.path)}
         >
           <item.icon className="text-xl" />
