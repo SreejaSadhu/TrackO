@@ -83,10 +83,9 @@ const UnifyFinances = () => {
 
           {/* Cards Animation Container */}
           <div className="relative h-[500px] flex items-center justify-center perspective-1000">
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               {/* Expense Card */}
               <motion.div
-                key="expense-card"
                 {...floatAnimation}
                 initial={{ opacity: 0, rotateY: 90 }}
                 whileInView={{ 
@@ -101,40 +100,148 @@ const UnifyFinances = () => {
                   scale: 1.05,
                   transition: { duration: 0.2 }
                 }}
-                className="absolute w-80 h-48 bg-white rounded-2xl shadow-2xl p-6"
-                style={{
-                  transformStyle: "preserve-3d",
-                  backfaceVisibility: "hidden"
-                }}
+                viewport={{ once: false, margin: "-100px" }}
+                className="absolute w-64 h-40 bg-gradient-to-br from-green-400 to-green-600 rounded-xl p-4 text-white shadow-2xl backdrop-blur-sm transform-gpu hover:shadow-green-400/30"
               >
-                {/* Card content */}
+                <div className="flex flex-col h-full relative overflow-hidden">
+                  {/* Animated background pattern */}
+                  <motion.div
+                    className="absolute inset-0 opacity-10"
+                    animate={{
+                      backgroundPosition: ["0% 0%", "100% 100%"]
+                    }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      repeatType: "reverse"
+                    }}
+                    style={{
+                      backgroundImage: "linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff)",
+                      backgroundSize: "20px 20px"
+                    }}
+                  />
+                  <span className="text-sm font-medium relative z-10">Monthly Budget</span>
+                  <motion.span 
+                    className="text-2xl font-bold mt-1 relative z-10"
+                    animate={{
+                      scale: [1, 1.02, 1],
+                      transition: { duration: 2, repeat: Infinity }
+                    }}
+                  >
+                    ₹1,500.00
+                  </motion.span>
+                  <span className="text-lg mt-2 opacity-90 relative z-10">Spent: ₹847.25</span>
+                  <motion.span 
+                    className="text-sm mt-auto bg-white/20 px-3 py-1 rounded-full w-fit relative z-10"
+                    animate={{
+                      boxShadow: [
+                        "0 0 0 0 rgba(255,255,255,0.4)",
+                        "0 0 0 10px rgba(255,255,255,0)",
+                      ]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity
+                    }}
+                  >
+                    On Track
+                  </motion.span>
+                </div>
               </motion.div>
 
-              {/* Income Card */}
+              {/* Add similar enhanced animations for Balance and Category cards */}
+              {/* Expense Card */}
               <motion.div
-                key="income-card"
-                {...floatAnimation}
-                initial={{ opacity: 0, rotateY: -90 }}
-                whileInView={{
-                  opacity: 1,
-                  rotateY: 0,
+                initial={{ opacity: 0, y: 100, rotateX: 30 }}
+                whileInView={{ 
+                  opacity: 1, 
+                  y: 0,
+                  rotateX: 0,
                   transition: {
-                    duration: 1,
-                    delay: 0.3,
+                    duration: 0.8,
                     ease: "easeOut"
                   }
                 }}
-                whileHover={{
-                  scale: 1.05,
-                  transition: { duration: 0.2 }
-                }}
-                className="absolute w-80 h-48 bg-gradient-to-br from-primary to-purple-600 rounded-2xl shadow-2xl p-6 text-white"
-                style={{
-                  transformStyle: "preserve-3d",
-                  backfaceVisibility: "hidden"
-                }}
+                viewport={{ once: false, margin: "-100px" }}
+                className="absolute w-64 h-40 bg-gradient-to-br from-green-400 to-green-600 rounded-xl p-4 text-white shadow-2xl backdrop-blur-sm transform-gpu"
               >
-                {/* Card content */}
+                <div className="flex flex-col h-full">
+                  <span className="text-sm font-medium">Monthly Budget</span>
+                  <motion.span 
+                    className="text-2xl font-bold mt-1"
+                    animate={{
+                      scale: [1, 1.02, 1],
+                      transition: { duration: 2, repeat: Infinity }
+                    }}
+                  >
+                    ₹1,500.00
+                  </motion.span>
+                  <span className="text-lg mt-2 opacity-90">Spent: ₹847.25</span>
+                  <span className="text-sm mt-auto bg-white/20 px-3 py-1 rounded-full w-fit">On Track</span>
+                </div>
+              </motion.div>
+
+              {/* Balance Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 100, rotateX: -30 }}
+                whileInView={{ 
+                  opacity: 1, 
+                  y: 20,
+                  rotateX: 0,
+                  transition: {
+                    duration: 0.8,
+                    delay: 0.2,
+                    ease: "easeOut"
+                  }
+                }}
+                viewport={{ once: false, margin: "-100px" }}
+                className="absolute w-64 h-40 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white shadow-2xl backdrop-blur-sm transform-gpu translate-x-20"
+              >
+                <div className="flex flex-col h-full">
+                  <span className="text-sm font-medium">Current Balance</span>
+                  <span className="text-2xl font-bold mt-1">₹2,450.75</span>
+                  <span className="text-sm opacity-90">Savings Goal: ₹5,000</span>
+                  <div className="mt-auto h-2 bg-white/20 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: "0%" }}
+                      whileInView={{ width: "50%" }}
+                      transition={{ duration: 1, delay: 0.5 }}
+                      viewport={{ once: false, margin: "-100px" }}
+                      className="h-full bg-white rounded-full"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Category Card */}
+              <motion.div
+                initial={{ opacity: 0, y: -100, rotateX: 30 }}
+                whileInView={{ 
+                  opacity: 1, 
+                  y: -20,
+                  rotateX: 0,
+                  transition: {
+                    duration: 0.8,
+                    delay: 0.4,
+                    ease: "easeOut"
+                  }
+                }}
+                viewport={{ once: false, margin: "-100px" }}
+                className="absolute w-64 h-40 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl p-4 text-white shadow-2xl backdrop-blur-sm transform-gpu -translate-x-20"
+              >
+                <div className="flex flex-col h-full">
+                  <span className="text-lg font-medium">Top Categories</span>
+                  <div className="space-y-3 mt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="opacity-90">Groceries</span>
+                      <span className="font-medium">₹320.45</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="opacity-90">Transport</span>
+                      <span className="font-medium">₹145.80</span>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>
