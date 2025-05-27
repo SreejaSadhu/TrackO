@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import DashboardLayout from "../../components/layouts/DashboardLayout";
-import BudgetManager from '../../components/Budget/BudgetManager';
-import Save from '../../components/Save/Save';
+import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import axiosInstance from "../../utils/axiosInstance";
@@ -189,7 +187,7 @@ const Expense = () => {
 
 export default Expense;
 
-  // Add a handler for budget updates
+ /* // Add a handler for budget updates
   const handleBudgetUpdate = (category, amount) => {
     setBudgets(prev => {
       const existingBudgetIndex = prev.findIndex(
@@ -204,4 +202,4 @@ export default Expense;
       
       return [...prev, { category, amount }];
     });
-  };
+  };*/
