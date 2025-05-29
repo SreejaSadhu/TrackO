@@ -1,5 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 exports.protect = async (req, res, next) => {
   let token = req.headers.authorization?.split(" ")[1];
