@@ -4,21 +4,9 @@
     "src": "server.js",
     "use": "@vercel/node"
   }],
-  "rewrites": [
-    { "source": "/api/v1/(.*)", "destination": "/server.js" },
-    { "source": "/uploads/(.*)", "destination": "/server.js" },
-    { "source": "/(.*)", "destination": "/server.js" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "${process.env.CLIENT_URL}" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
-      ]
-    }
+  "routes": [
+    { "src": "/api/v1/(.*)", "dest": "/server.js" },
+    { "src": "/uploads/(.*)", "dest": "/server.js" }
   ],
   "env": {
     "NODE_ENV": "production"
