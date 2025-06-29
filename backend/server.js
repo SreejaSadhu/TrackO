@@ -42,29 +42,35 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 connectDB();
 
-// Health check endpoint (define first)
+// Test routes - define these first
+app.get("/", (req, res) => {
+  res.json({ message: "Root endpoint working" });
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "TrackO API is running" });
 });
 
-// Test endpoint to verify routing
 app.get("/test", (req, res) => {
   res.json({ message: "Test endpoint working" });
 });
 
-// Simple test for auth routes
 app.get("/api/v1/auth/test", (req, res) => {
-  res.json({ message: "Auth route working" });
+  res.json({ message: "Auth GET route working" });
 });
 
 app.post("/api/v1/auth/test", (req, res) => {
   res.json({ message: "Auth POST route working" });
 });
 
-// Simple test for login route
 app.post("/api/v1/auth/login", (req, res) => {
-  console.log("Login route hit - test version");
-  res.json({ message: "Login route working" });
+  console.log("Login route hit");
+  res.json({ message: "Login route working", body: req.body });
+});
+
+app.post("/api/v1/auth/register", (req, res) => {
+  console.log("Register route hit");
+  res.json({ message: "Register route working", body: req.body });
 });
 
 // Auth routes defined directly (instead of using router)
