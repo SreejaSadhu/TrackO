@@ -42,6 +42,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 connectDB();
 
+// Health check endpoint (define first)
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "TrackO API is running" });
+});
+
 // Test endpoint to verify routing
 app.get("/test", (req, res) => {
   res.json({ message: "Test endpoint working" });
@@ -93,12 +98,7 @@ app.use("/api/v1/budget", budgetRoutes);
 // Serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", message: "TrackO API is running" });
-});
-
-// Handle all other routes
+// Handle all other routes (this should be LAST)
 app.use("*", (req, res) => {
   console.log(`Route not found: ${req.method} ${req.url}`);
   res.status(404).json({ error: "Route not found" });
