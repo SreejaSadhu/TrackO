@@ -3,6 +3,13 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
+const {
+  registerUser,
+  loginUser,
+  getUserInfo,
+} = require("./controllers/authController");
+const { protect } = require("./middleware/authMiddleware");
+const upload = require("./middleware/uploadMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
@@ -40,7 +47,40 @@ app.get("/test", (req, res) => {
   res.json({ message: "Test endpoint working" });
 });
 
-app.use("/api/v1/auth", authRoutes);
+// Direct test endpoint for auth
+app.get("/api/v1/auth/test", (req, res) => {
+  res.json({ message: "Auth route working" });
+});
+
+// Auth routes defined directly (instead of using router)
+app.post("/api/v1/auth/register", (req, res) => {
+  console.log("Register route hit");
+  registerUser(req, res);
+});
+
+app.post("/api/v1/auth/login", (req, res) => {
+  console.log("Login route hit");
+  loginUser(req, res);
+});
+
+app.get("/api/v1/auth/getUser", protect, (req, res) => {
+  console.log("GetUser route hit");
+  getUserInfo(req, res);
+});
+
+app.post("/api/v1/auth/upload-image", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
+    req.file.filename
+  }`;
+  res.status(200).json({ imageUrl });
+});
+
+// Debug: Log when mounting routes
+console.log("Mounting API routes...");
+
 app.use("/api/v1/income", incomeRoutes);
 app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
@@ -66,11 +106,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Something went wrong!" });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
-// For Vercel, export the app
-if (process.env.NODE_ENV === 'production') {
-  module.exports = app;
-} else {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+});
