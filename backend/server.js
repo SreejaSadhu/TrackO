@@ -11,6 +11,12 @@ const budgetRoutes = require("./routes/budgetRoutes");
 
 const app = express();
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 // Middleware to handle CORS
 app.use(
   cors({
@@ -29,6 +35,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 connectDB();
 
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "TrackO API is running" });
+});
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/income", incomeRoutes);
 app.use("/api/v1/expense", expenseRoutes);
@@ -38,13 +49,9 @@ app.use("/api/v1/budget", budgetRoutes);
 // Serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", message: "TrackO API is running" });
-});
-
 // Handle all other routes
 app.use("*", (req, res) => {
+  console.log(`Route not found: ${req.method} ${req.url}`);
   res.status(404).json({ error: "Route not found" });
 });
 
