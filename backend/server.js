@@ -61,15 +61,16 @@ app.post("/api/v1/auth/test", (req, res) => {
   res.json({ message: "Auth POST route working" });
 });
 
+// Simple test for login route
+app.post("/api/v1/auth/login", (req, res) => {
+  console.log("Login route hit - test version");
+  res.json({ message: "Login route working" });
+});
+
 // Auth routes defined directly (instead of using router)
 app.post("/api/v1/auth/register", (req, res) => {
   console.log("Register route hit");
   registerUser(req, res);
-});
-
-app.post("/api/v1/auth/login", (req, res) => {
-  console.log("Login route hit");
-  loginUser(req, res);
 });
 
 app.get("/api/v1/auth/getUser", protect, (req, res) => {
