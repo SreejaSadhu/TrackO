@@ -47,9 +47,13 @@ app.get("/test", (req, res) => {
   res.json({ message: "Test endpoint working" });
 });
 
-// Direct test endpoint for auth
+// Simple test for auth routes
 app.get("/api/v1/auth/test", (req, res) => {
   res.json({ message: "Auth route working" });
+});
+
+app.post("/api/v1/auth/test", (req, res) => {
+  res.json({ message: "Auth POST route working" });
 });
 
 // Auth routes defined directly (instead of using router)
