@@ -63,32 +63,10 @@ app.post("/api/v1/auth/test", (req, res) => {
   res.json({ message: "Auth POST route working" });
 });
 
-// Login routes - both GET and POST for testing
-app.get("/api/v1/auth/login", (req, res) => {
-  console.log("Login GET route hit");
-  res.json({ message: "Login GET route working - but should use POST" });
-});
-
-app.post("/api/v1/auth/login", (req, res) => {
-  console.log("Login POST route hit");
-  res.json({ message: "Login POST route working", body: req.body });
-});
-
-app.post("/api/v1/auth/register", (req, res) => {
-  console.log("Register route hit");
-  res.json({ message: "Register route working", body: req.body });
-});
-
-// Auth routes defined directly (instead of using router)
-app.post("/api/v1/auth/register", (req, res) => {
-  console.log("Register route hit");
-  registerUser(req, res);
-});
-
-app.get("/api/v1/auth/getUser", protect, (req, res) => {
-  console.log("GetUser route hit");
-  getUserInfo(req, res);
-});
+// Auth routes with actual functionality
+app.post("/api/v1/auth/register", registerUser);
+app.post("/api/v1/auth/login", loginUser);
+app.get("/api/v1/auth/getUser", protect, getUserInfo);
 
 app.post("/api/v1/auth/upload-image", upload.single("image"), (req, res) => {
   if (!req.file) {
