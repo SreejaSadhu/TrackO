@@ -63,9 +63,15 @@ app.post("/api/v1/auth/test", (req, res) => {
   res.json({ message: "Auth POST route working" });
 });
 
+// Login routes - both GET and POST for testing
+app.get("/api/v1/auth/login", (req, res) => {
+  console.log("Login GET route hit");
+  res.json({ message: "Login GET route working - but should use POST" });
+});
+
 app.post("/api/v1/auth/login", (req, res) => {
-  console.log("Login route hit");
-  res.json({ message: "Login route working", body: req.body });
+  console.log("Login POST route hit");
+  res.json({ message: "Login POST route working", body: req.body });
 });
 
 app.post("/api/v1/auth/register", (req, res) => {
