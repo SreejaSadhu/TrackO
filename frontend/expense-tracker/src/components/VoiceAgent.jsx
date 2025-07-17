@@ -22,7 +22,7 @@ function wordsToNumber(str) {
   return null;
 }
 
-function parseVoiceCommand(text) {
+function parseVoiceCommandRegex(text) {
   // Try to match numbers as digits
   let expenseMatch = text.match(/add expense (\d+)(?: dollars)?(?: for| on)? (.+)/i);
   if (expenseMatch) {
@@ -76,17 +76,10 @@ export default function VoiceAgent() {
     recognition.lang = "en-US";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    recognition.onresult = (event) => {
+    recognition.onresult = async (event) => {
       const transcript = event.results[0][0].transcript;
       setRecognized(transcript);
-      const data = parseVoiceCommand(transcript);
-      if (!data) {
-        setError("Sorry, I couldn't understand. Please try again or use manual input.");
-        setListening(false);
-        return;
-      }
-      setParsed(data);
-      setConfirming(true);
+      await handleParseAI(transcript);
       setListening(false);
     };
     recognition.onerror = (event) => {
@@ -97,6 +90,35 @@ export default function VoiceAgent() {
       setListening(false);
     };
     recognition.start();
+  };
+
+  const handleParseAI = async (sentence) => {
+    setError("");
+    setParsed(null);
+    setConfirming(false);
+    setSuccess("");
+    setLoading(true);
+    try {
+      const response = await axios.post("/api/v1/ai/parse-ai", { sentence });
+      const data = response.data;
+      if (!data.type || !data.amount || !data.description) {
+        throw new Error("AI could not extract all fields");
+      }
+      setParsed(data);
+      setConfirming(true);
+    } catch {
+      // Fallback to regex parsing
+      const fallback = parseVoiceCommandRegex(sentence);
+      if (fallback) {
+        setParsed(fallback);
+        setConfirming(true);
+        setError("AI parsing failed, used fallback parser.");
+      } else {
+        setError("Could not parse your input. Try: 'Add expense 50 for groceries'.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleConfirm = async () => {
@@ -121,15 +143,9 @@ export default function VoiceAgent() {
     }
   };
 
-  const handleManualSubmit = () => {
+  const handleManualSubmit = async () => {
     setRecognized(manualText);
-    const data = parseVoiceCommand(manualText);
-    if (!data) {
-      setError("Could not parse your input. Try: 'Add expense 50 for groceries'.");
-      return;
-    }
-    setParsed(data);
-    setConfirming(true);
+    await handleParseAI(manualText);
     setManual(false);
     setManualText("");
   };
