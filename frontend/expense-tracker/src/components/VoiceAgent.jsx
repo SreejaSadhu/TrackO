@@ -60,6 +60,7 @@ export default function VoiceAgent() {
   const [success, setSuccess] = useState("");
   const [manual, setManual] = useState(false);
   const [manualText, setManualText] = useState("");
+  const [chat, setChat] = useState([]); // [{role: 'user'|'bot', text: string}]
 
   const startListening = () => {
     setError("");
@@ -98,8 +99,16 @@ export default function VoiceAgent() {
     setConfirming(false);
     setSuccess("");
     setLoading(true);
+    setChat((prev) => [...prev, { role: "user", text: sentence }]);
     try {
       const response = await axios.post("/api/v1/ai/parse-ai", { sentence });
+      // If it's a query, show the answer directly
+      if (response.data.answer) {
+        setChat((prev) => [...prev, { role: "bot", text: response.data.answer }]);
+        setLoading(false);
+        return;
+      }
+      // If it's an add command, continue as before
       const data = response.data;
       if (!data.type || !data.amount || !data.description) {
         throw new Error("AI could not extract all fields");
@@ -134,6 +143,7 @@ export default function VoiceAgent() {
         : { source: parsed.description, amount: parsed.amount, date: today };
       await axios.post(endpoint, payload);
       setSuccess(`${parsed.type === "expense" ? "Expense" : "Income"} added: $${parsed.amount} for ${parsed.description}`);
+      setChat((prev) => [...prev, { role: "bot", text: `Added ${parsed.type}: $${parsed.amount} for ${parsed.description}` }]);
       setParsed(null);
       setConfirming(false);
     } catch (err) {
@@ -152,10 +162,19 @@ export default function VoiceAgent() {
 
   return (
     <div className="p-4 border rounded max-w-md mx-auto my-4 bg-white shadow">
-      <h2 className="text-lg font-bold mb-2">Add Income/Expense by Voice</h2>
+      <h2 className="text-lg font-bold mb-2">Add Income/Expense or Ask TrackO-Bot</h2>
       {error && <div className="text-red-600 mb-2">{error}</div>}
       {success && <div className="text-green-600 mb-2">{success}</div>}
       {listening && <div className="text-blue-600 mb-2">Listening... Please speak your command.</div>}
+      <div className="mb-4 max-h-64 overflow-y-auto bg-gray-50 rounded p-2">
+        {chat.map((msg, idx) => (
+          <div key={idx} className={`mb-2 flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`px-3 py-2 rounded-lg text-sm max-w-xs ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-800'}`}>
+              {msg.role === 'user' ? <b>You:</b> : <b>TrackO-Bot:</b>} {msg.text}
+            </div>
+          </div>
+        ))}
+      </div>
       {!listening && !confirming && (
         <div className="flex gap-2 mb-2">
           <button
@@ -179,7 +198,7 @@ export default function VoiceAgent() {
           <input
             className="border px-2 py-1 rounded w-full mb-1"
             type="text"
-            placeholder="e.g. Add expense 50 for groceries"
+            placeholder="e.g. Add expense 50 for groceries or How much did I spend?"
             value={manualText}
             onChange={e => setManualText(e.target.value)}
             disabled={loading}
@@ -218,7 +237,7 @@ export default function VoiceAgent() {
         </div>
       )}
       <div className="text-xs text-gray-500 mt-2">
-        Example: <span className="font-mono">Add expense 50 for groceries</span> or <span className="font-mono">Add income 1000 from salary</span>.<br/>
+        Example: <span className="font-mono">Add expense 50 for groceries</span> or <span className="font-mono">How much did I spend?</span>.<br/>
         Your voice is never recorded or sent to third parties.
       </div>
     </div>
