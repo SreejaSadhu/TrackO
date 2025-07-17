@@ -1,5 +1,8 @@
 const OpenAI = require('openai');
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: "https://api.deepseek.com/v1", // Update if DeepSeek uses a different base URL
+});
 
 exports.parseSentence = async (req, res) => {
   const { sentence } = req.body;
@@ -7,9 +10,9 @@ exports.parseSentence = async (req, res) => {
     return res.status(400).json({ error: 'Sentence is required.' });
   }
   try {
-    const prompt = `Extract the following from the sentence: (1) type: income or expense, (2) amount (number), (3) description (short text).\nSentence: "${sentence}"\nReturn as JSON: {"type":...,"amount":...,"description":...}`;
+    const prompt = `Extract the following from the sentence: (1) type: income or expense, (2) amount (number), (3) description (short text, or null if not present).\nSentence: "${sentence}"\nReturn as JSON: {\"type\":...,\"amount\":...,\"description\":...}`;
     const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'deepseek-chat', // Use DeepSeek's model name
       messages: [
         { role: 'system', content: 'You are a helpful assistant that extracts structured data from financial sentences.' },
         { role: 'user', content: prompt }
