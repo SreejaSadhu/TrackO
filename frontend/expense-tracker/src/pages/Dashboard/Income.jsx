@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
-
-import { useNavigate } from "react-router-dom";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import IncomeOverview from "../../components/Income/IncomeOverview";
 import IncomeList from "../../components/Income/IncomeList";
-import AddIncomeModal from "../../components/Income/AddIncomeForm";
-import Modal from "../../components/Modal";
 import AddIncomeForm from "../../components/Income/AddIncomeForm";
+import Modal from "../../components/Modal";
 import toast from "react-hot-toast";
 import DeleteAlert from "../../components/DeleteAlert";
+import VoiceAgent from "../../components/VoiceAgent";
 
 const Income = () => {
   useUserAuth();
@@ -134,6 +132,7 @@ const Income = () => {
   return (
     <DashboardLayout activeMenu="Income">
       <div className="my-5 mx-auto">
+        <VoiceAgent />
         <div className="grid grid-cols-1 gap-6">
           <div className="">
             <IncomeOverview

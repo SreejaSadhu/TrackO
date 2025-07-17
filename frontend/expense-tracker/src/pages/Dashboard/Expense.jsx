@@ -1,21 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
-import { useNavigate } from "react-router-dom";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
-import IncomeOverview from "../../components/Expense/ExpenseOverview";
 import ExpenseList from "../../components/Expense/ExpenseList";
 import ExpenseOverview from "../../components/Expense/ExpenseOverview";
 import AddExpenseForm from "../../components/Expense/AddExpenseForm";
 import DeleteAlert from "../../components/DeleteAlert";
 import Modal from "../../components/Modal";
 import toast from "react-hot-toast";
+import VoiceAgent from "../../components/VoiceAgent";
 
 const Expense = () => {
   useUserAuth();
-
-  const navigate = useNavigate();
 
   const [expenseData, setExpenseData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -133,17 +130,10 @@ const Expense = () => {
     return () => {};
   }, []);
 
-  const [budgetData, setBudgetData] = useState([
-    { category: 'Food', amount: 500 },
-    { category: 'Entertainment', amount: 300 },
-    // Add more budget categories as needed
-  ]);
-
-  const [budgets, setBudgets] = useState([]);
-
   return (
     <DashboardLayout activeMenu="Expense">
       <div className="my-5 mx-auto">
+        <VoiceAgent />
         <div className="grid grid-cols-1 gap-6">
           <div className="">
             <ExpenseOverview
@@ -186,20 +176,3 @@ const Expense = () => {
 };
 
 export default Expense;
-
- /* // Add a handler for budget updates
-  const handleBudgetUpdate = (category, amount) => {
-    setBudgets(prev => {
-      const existingBudgetIndex = prev.findIndex(
-        b => b.category.toLowerCase() === category.toLowerCase()
-      );
-      
-      if (existingBudgetIndex >= 0) {
-        const newBudgets = [...prev];
-        newBudgets[existingBudgetIndex] = { category, amount };
-        return newBudgets;
-      }
-      
-      return [...prev, { category, amount }];
-    });
-  };*/
