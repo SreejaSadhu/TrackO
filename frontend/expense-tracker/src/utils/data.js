@@ -4,6 +4,7 @@ import {
   LuWalletMinimal,
   LuLogOut,
   LuPiggyBank, // Add this import
+  LuMic,
 } from "react-icons/lu";
 
 export const SIDE_MENU_DATA = [
@@ -30,6 +31,12 @@ export const SIDE_MENU_DATA = [
     label: "Smart Budget",
     icon: LuPiggyBank,
     path: "/smartbudget",
+  },
+  {
+    id: "05",
+    label: "Voice Assistant",
+    icon: LuMic,
+    path: "/voice-assistant",
   },
   {
     id: "06",

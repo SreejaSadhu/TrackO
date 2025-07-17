@@ -9,7 +9,6 @@ import AddExpenseForm from "../../components/Expense/AddExpenseForm";
 import DeleteAlert from "../../components/DeleteAlert";
 import Modal from "../../components/Modal";
 import toast from "react-hot-toast";
-import VoiceAgent from "../../components/VoiceAgent";
 
 const Expense = () => {
   useUserAuth();
@@ -133,7 +132,6 @@ const Expense = () => {
   return (
     <DashboardLayout activeMenu="Expense">
       <div className="my-5 mx-auto">
-        <VoiceAgent />
         <div className="grid grid-cols-1 gap-6">
           <div className="">
             <ExpenseOverview
