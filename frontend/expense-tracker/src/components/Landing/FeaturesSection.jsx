@@ -1,6 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { HiChartPie, HiArrowDownTray, HiWallet, HiShieldCheck } from 'react-icons/hi2';
+import { LuMic } from 'react-icons/lu';
+import { MdAutoGraph } from 'react-icons/md';
+import PropTypes from 'prop-types';
 
 const FeatureCard = ({ icon: Icon, title, description, delay }) => (
   <motion.div
@@ -18,8 +20,25 @@ const FeatureCard = ({ icon: Icon, title, description, delay }) => (
   </motion.div>
 );
 
+FeatureCard.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  delay: PropTypes.number,
+};
+
 const FeaturesSection = () => {
   const features = [
+    {
+      icon: LuMic,
+      title: "TrackO-Bot (AI Voice/Chat)",
+      description: "Talk or type to TrackO-Bot! Add expenses, ask questions, and get instant answers with our AI-powered voice and chat assistant.",
+    },
+    {
+      icon: MdAutoGraph,
+      title: "Smart Insights",
+      description: "Get personalized trends, savings tips, and spending analysis powered by AI. Discover where your money goes and how to improve.",
+    },
     {
       icon: HiChartPie,
       title: "Track Expenses",
