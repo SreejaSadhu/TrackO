@@ -22,16 +22,18 @@ async function classifyInput(sentence) {
   return completion.choices[0].message.content.trim().toLowerCase();
 }
 
-// Helper: Generate a data plan for the query
+// Helper: Generate a data plan for the query, with few-shot examples
 async function generateDataPlan(sentence) {
-  const planPrompt = `Given the user's sentence, describe in one sentence what data to fetch from the user's finances (expenses or income).\nSentence: "${sentence}"\nReply with a plan, e.g., 'total expenses for last month', 'total income for July', 'current balance', 'top spending category', 'recent transactions', etc.`;
+  const planPrompt = `Given the user's sentence, describe in one sentence what data to fetch from the user's finances (expenses, income, budgets, goals, etc).\nUse the following examples to help you generalize:\n
+"I earned ₹10,000 today." => add income ₹10,000 for today\n"Add my salary of ₹25,000." => add income ₹25,000, category salary\n"How much did I earn this month?" => sum all income for current month\n"Show my total income in June." => sum all income for June\n"Which source gave me the most income?" => group income by source, return top\n"I spent ₹300 on groceries." => add expense ₹300, category groceries\n"Add ₹1200 for electricity bill." => add expense ₹1200, category electricity\n"Show my total expenses this month." => sum all expenses for current month\n"How much did I spend on food?" => sum all expenses, category food\n"What’s my biggest spending category?" => group expenses by category, return top\n"Are my expenses increasing?" => compare total expenses this month to last month\n"Set a budget of ₹10,000 for groceries this month." => set budget ₹10,000, category groceries, period current month\n"Am I exceeding my grocery budget?" => compare total expenses in groceries to budget for groceries\n"Give me a summary of my finances." => summarize total income, total expenses, balance\n"How much did I save this month?" => income minus expenses for current month\n"Suggest how to reduce expenses." => analyze expenses, suggest categories to cut\n"I want to save ₹50,000 in 6 months — how?" => savings plan for ₹50,000 in 6 months\n"Where is all my money going?" => group expenses by category, show top categories\n"Show me last month." => show summary for last month\n"What’s my average monthly expense?" => average expenses per month\n"How much did I spend in the first week of this month?" => sum expenses for first week of current month\n"What can you do?" => list bot capabilities\n"How’s my spending vibe?" => analyze spending patterns, give fun feedback\n
+Now, for the following sentence, reply with a one-sentence data plan:\nSentence: "${sentence}"`;
   const planCompletion = await openai.chat.completions.create({
     model: 'openai/gpt-3.5-turbo',
     messages: [
       { role: 'system', content: 'You are a helpful assistant that creates a data fetch plan.' },
       { role: 'user', content: planPrompt }
     ],
-    max_tokens: 50,
+    max_tokens: 80,
     temperature: 0,
   });
   return planCompletion.choices[0].message.content.trim();
