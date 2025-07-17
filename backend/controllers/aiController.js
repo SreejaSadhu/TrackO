@@ -1,7 +1,7 @@
 const OpenAI = require('openai');
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "https://api.deepseek.com/v1", // Update if DeepSeek uses a different base URL
+  baseURL: "https://openrouter.ai/api/v1",
 });
 
 exports.parseSentence = async (req, res) => {
@@ -12,7 +12,7 @@ exports.parseSentence = async (req, res) => {
   try {
     const prompt = `Extract the following from the sentence: (1) type: income or expense, (2) amount (number), (3) description (short text, or null if not present).\nSentence: "${sentence}"\nReturn as JSON: {\"type\":...,\"amount\":...,\"description\":...}`;
     const completion = await openai.chat.completions.create({
-      model: 'deepseek-chat', // Use DeepSeek's model name
+      model: 'openai/gpt-3.5-turbo', // You can change to another OpenRouter-supported model if desired
       messages: [
         { role: 'system', content: 'You are a helpful assistant that extracts structured data from financial sentences.' },
         { role: 'user', content: prompt }
