@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "../utils/axiosInstance";
+import { API_PATHS } from "../utils/apiPaths";
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
@@ -104,7 +105,7 @@ export default function VoiceAgent() {
     setError("");
     setSuccess("");
     try {
-      const endpoint = parsed.type === "expense" ? "/expenses/add" : "/income/add";
+      const endpoint = parsed.type === "expense" ? API_PATHS.EXPENSE.ADD_EXPENSE : API_PATHS.INCOME.ADD_INCOME;
       const today = new Date().toISOString().split("T")[0];
       const payload = parsed.type === "expense"
         ? { category: parsed.description, amount: parsed.amount, date: today }
