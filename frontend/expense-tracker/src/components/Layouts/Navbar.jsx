@@ -22,7 +22,7 @@ const Navbar = ({ activeMenu }) => {
       </button>
 
       <h2 className="text-lg font-medium text-black flex items-center gap-2">
-        <span role="img" aria-label="robot">🤖</span> TrackO
+        <span role="img" aria-label="robot"></span> TrackO
       </h2>
 
       {openSideMenu && (

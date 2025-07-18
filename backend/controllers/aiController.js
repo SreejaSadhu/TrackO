@@ -391,6 +391,30 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const balance = (income[0]?.total || 0) - (expenses[0]?.total || 0);
     return { answer: `Your current balance is $${balance}.`, data: { expenses, income } };
   }
+  // 15. Category-specific spending: "How much did I spend on X?"
+  const categoryMatch = plan.match(/category ([^\s]+)|on ([^\s]+)|for ([^\s]+)/i);
+  if (categoryMatch) {
+    // Try to extract the category from the plan or original sentence
+    let cat = categoryMatch[1] || categoryMatch[2] || categoryMatch[3];
+    if (!cat) {
+      // Try to extract from the original sentence
+      const sentMatch = originalSentence.match(/on ([^\s]+)|for ([^\s]+)/i);
+      cat = sentMatch ? (sentMatch[1] || sentMatch[2]) : null;
+    }
+    if (cat) {
+      // Use case-insensitive, partial match
+      const regex = new RegExp(cat, 'i');
+      const data = await Expense.aggregate([
+        { $match: { userId: mongoose.Types.ObjectId(userId), category: { $regex: regex } } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]);
+      if (data.length > 0) {
+        return { answer: `You spent $${data[0].total} on ${cat}.`, data };
+      } else {
+        return { answer: `No expenses found for category matching '${cat}'.`, data: [] };
+      }
+    }
+  }
   // 7. Fallback
   return { answer: "Sorry, I can only answer questions about total expenses, total income, current balance, top spending category, or recent transactions for now.", data: [] };
 }
