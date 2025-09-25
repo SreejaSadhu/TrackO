@@ -9,6 +9,9 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash"; // temp default
 const gemini = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
+// Helper function to create ObjectId
+const createObjectId = (id) => new mongoose.Types.ObjectId(id);
+
 // Optional: a tiny wrapper with fallback if the chosen model 404s
 async function generateSafeContent(prompt) {
   try {
@@ -58,7 +61,7 @@ async function classifyInput(sentence) {
 // Helper: Generate a data plan for the query, with few-shot examples
 async function generateDataPlan(sentence) {
   const planPrompt = `Given the user's sentence, describe in one sentence what data to fetch from the user's finances (expenses, income, budgets, goals, etc).\nUse the following examples to help you generalize:\n
-"I earned ₹10,000 today." => add income ₹10,000 for today\n"Add my salary of ₹25,000." => add income ₹25,000, category salary\n"How much did I earn this month?" => sum all income for current month\n"Show my total income in June." => sum all income for June\n"Which source gave me the most income?" => group income by source, return top\n"I spent ₹300 on groceries." => add expense ₹300, category groceries\n"Add ₹1200 for electricity bill." => add expense ₹1200, category electricity\n"Show my total expenses this month." => sum all expenses for current month\n"How much did I spend on food?" => sum all expenses, category food\n"What’s my biggest spending category?" => group expenses by category, return top\n"Are my expenses increasing?" => compare total expenses this month to last month\n"Set a budget of ₹10,000 for groceries this month." => set budget ₹10,000, category groceries, period current month\n"Am I exceeding my grocery budget?" => compare total expenses in groceries to budget for groceries\n"Give me a summary of my finances." => summarize total income, total expenses, balance\n"How much did I save this month?" => income minus expenses for current month\n"Suggest how to reduce expenses." => analyze expenses, suggest categories to cut\n"I want to save ₹50,000 in 6 months — how?" => savings plan for ₹50,000 in 6 months\n"Where is all my money going?" => group expenses by category, show top categories\n"Show me last month." => show summary for last month\n"What’s my average monthly expense?" => average expenses per month\n"How much did I spend in the first week of this month?" => sum expenses for first week of current month\n"What can you do?" => list bot capabilities\n"How’s my spending vibe?" => analyze spending patterns, give fun feedback\n
+"I earned ₹10,000 today." => add income ₹10,000 for today\n"Add my salary of ₹25,000." => add income ₹25,000, category salary\n"How much did I earn this month?" => sum all income for current month\n"Show my total income in June." => sum all income for June\n"Which source gave me the most income?" => group income by source, return top\n"I spent ₹300 on groceries." => add expense ₹300, category groceries\n"Add ₹1200 for electricity bill." => add expense ₹1200, category electricity\n"Show my total expenses this month." => sum all expenses for current month\n"How much did I spend on food?" => sum all expenses, category food\n"What's my biggest spending category?" => group expenses by category, return top\n"Are my expenses increasing?" => compare total expenses this month to last month\n"Set a budget of ₹10,000 for groceries this month." => set budget ₹10,000, category groceries, period current month\n"Am I exceeding my grocery budget?" => compare total expenses in groceries to budget for groceries\n"Give me a summary of my finances." => summarize total income, total expenses, balance\n"How much did I save this month?" => income minus expenses for current month\n"Suggest how to reduce expenses." => analyze expenses, suggest categories to cut\n"I want to save ₹50,000 in 6 months — how?" => savings plan for ₹50,000 in 6 months\n"Where is all my money going?" => group expenses by category, show top categories\n"Show me last month." => show summary for last month\n"What's my average monthly expense?" => average expenses per month\n"How much did I spend in the first week of this month?" => sum expenses for first week of current month\n"What can you do?" => list bot capabilities\n"How's my spending vibe?" => analyze spending patterns, give fun feedback\n
 Now, for the following sentence, reply with a one-sentence data plan:\nSentence: "${sentence}"`;
   const result = await generateSafeContent(planPrompt);
   return result.response.text().trim();
@@ -67,10 +70,63 @@ Now, for the following sentence, reply with a one-sentence data plan:\nSentence:
 // Helper: Execute the data plan (expanded for spending pattern analysis)
 async function executeDataPlan(plan, userId, originalSentence) {
   if (!userId) return { answer: "User not authenticated." };
+  
+  // Add monthly expense queries
+  if (/spend.*this month|expenses.*this month|how much.*spent.*month/i.test(plan) || 
+      /spend.*this month|expenses.*this month|how much.*spent.*month/i.test(originalSentence)) {
+    const now = new Date();
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const data = await Expense.aggregate([
+      { $match: { userId: createObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    return { answer: `You spent $${data[0]?.total || 0} this month.`, data };
+  }
+  
+  // Add monthly income queries
+  if (/earn.*this month|income.*this month|how much.*earned.*month/i.test(plan) || 
+      /earn.*this month|income.*this month|how much.*earned.*month/i.test(originalSentence)) {
+    const now = new Date();
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const data = await Income.aggregate([
+      { $match: { userId: createObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    return { answer: `You earned $${data[0]?.total || 0} this month.`, data };
+  }
+  
+  // Add general expense queries
+  if (/what.*expenses|show.*expenses|list.*expenses/i.test(plan) || 
+      /what.*expenses|show.*expenses|list.*expenses/i.test(originalSentence)) {
+    const data = await Expense.aggregate([
+      { $match: { userId: createObjectId(userId) } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    return { answer: `Your total expenses are $${data[0]?.total || 0}.`, data };
+  }
+  
+  // Add most spent category queries
+  if (/most spent|biggest spending|top spending|highest spending/i.test(plan) || 
+      /most spent|biggest spending|top spending|highest spending/i.test(originalSentence)) {
+    const data = await Expense.aggregate([
+      { $match: { userId: createObjectId(userId) } },
+      { $group: { _id: "$category", total: { $sum: "$amount" } } },
+      { $sort: { total: -1 } },
+      { $limit: 1 }
+    ]);
+    if (data.length > 0) {
+      return { answer: `Your biggest spending category is ${data[0]._id} with $${data[0].total}.`, data };
+    } else {
+      return { answer: "No expenses found to determine your biggest spending category.", data: [] };
+    }
+  }
+
   // 1. Top spending category
   if (/top spending category|most of your money|category you spend the most/i.test(plan)) {
     const data = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: createObjectId(userId) } },
       { $group: { _id: "$category", total: { $sum: "$amount" } } },
       { $sort: { total: -1 } },
       { $limit: 1 }
@@ -85,13 +141,13 @@ async function executeDataPlan(plan, userId, originalSentence) {
   if (/analy[zs]e? (my )?spending patterns|spending habits|spending trend/i.test(plan) || /analy[zs]e? (my )?spending patterns|spending habits|spending trend/i.test(originalSentence)) {
     // Group by category
     const byCategory = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: createObjectId(userId) } },
       { $group: { _id: "$category", total: { $sum: "$amount" } } },
       { $sort: { total: -1 } }
     ]);
     // Group by month
     const byMonth = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: createObjectId(userId) } },
       { $group: { _id: { $dateToString: { format: "%Y-%m", date: "$date" } }, total: { $sum: "$amount" } } },
       { $sort: { _id: 1 } }
     ]);
@@ -105,19 +161,19 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const thisMonthIncome = await Income.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
+      { $match: { userId: createObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const thisMonthExpense = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
+      { $match: { userId: createObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const lastMonthIncome = await Income.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: lastMonth, $lt: thisMonth } } },
+      { $match: { userId: createObjectId(userId), date: { $gte: lastMonth, $lt: thisMonth } } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const lastMonthExpense = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: lastMonth, $lt: thisMonth } } },
+      { $match: { userId: createObjectId(userId), date: { $gte: lastMonth, $lt: thisMonth } } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const data = {
@@ -147,11 +203,11 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const expenseData = [];
     for (const m of months) {
       const income = await Income.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       const expense = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       incomeData.push({ month: m.start.toISOString().slice(0, 7), total: income[0]?.total || 0 });
@@ -171,13 +227,13 @@ async function executeDataPlan(plan, userId, originalSentence) {
       months.push({ start, end });
     }
     // Get all categories
-    const categories = await Expense.distinct("category", { userId: mongoose.Types.ObjectId(userId) });
+    const categories = await Expense.distinct("category", { userId: createObjectId(userId) });
     const categoryTrends = {};
     for (const cat of categories) {
       categoryTrends[cat] = [];
       for (const m of months) {
         const sum = await Expense.aggregate([
-          { $match: { userId: mongoose.Types.ObjectId(userId), category: cat, date: { $gte: m.start, $lt: m.end } } },
+          { $match: { userId: createObjectId(userId), category: cat, date: { $gte: m.start, $lt: m.end } } },
           { $group: { _id: null, total: { $sum: "$amount" } } }
         ]);
         categoryTrends[cat].push(sum[0]?.total || 0);
@@ -191,7 +247,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const now = new Date();
     const yearStart = new Date(now.getFullYear(), 0, 1);
     const data = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: yearStart } } },
+      { $match: { userId: createObjectId(userId), date: { $gte: yearStart } } },
       { $group: { _id: "$category", total: { $sum: "$amount" } } },
       { $sort: { total: -1 } }
     ]);
@@ -209,7 +265,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const foodTrend = [];
     for (const m of months) {
       const sum = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), category: /food/i, date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), category: /food/i, date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       foodTrend.push({ month: m.start.toISOString().slice(0, 7), total: sum[0]?.total || 0 });
@@ -230,11 +286,11 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const savings = [];
     for (const m of months) {
       const income = await Income.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       const expense = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       savings.push({ month: m.start.toISOString().slice(0, 7), total: (income[0]?.total || 0) - (expense[0]?.total || 0) });
@@ -254,7 +310,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const trend = [];
     for (const m of months) {
       const sum = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       trend.push({ month: m.start.toISOString().slice(0, 7), total: sum[0]?.total || 0 });
@@ -264,7 +320,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
   }
   // 10. Weekend vs weekday spending: "Am I spending more during weekends?"
   if (/spending more during weekends|weekend spending/i.test(plan) || /spending more during weekends|weekend spending/i.test(originalSentence)) {
-    const expenses = await Expense.find({ userId: mongoose.Types.ObjectId(userId) });
+    const expenses = await Expense.find({ userId: createObjectId(userId) });
     let weekend = 0, weekday = 0;
     expenses.forEach(e => {
       const day = new Date(e.date).getDay();
@@ -288,7 +344,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const monthly = [];
     for (const m of months) {
       const sum = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       const amt = sum[0]?.total || 0;
@@ -302,7 +358,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
   }
   // 12. Spending by day of week: "Which day of the week do I spend the most?"
   if (/day of the week do i spend the most|spending by day of week/i.test(plan) || /day of the week do i spend the most|spending by day of week/i.test(originalSentence)) {
-    const expenses = await Expense.find({ userId: mongoose.Types.ObjectId(userId) });
+    const expenses = await Expense.find({ userId: createObjectId(userId) });
     const days = [0,1,2,3,4,5,6];
     const dayTotals = Array(7).fill(0);
     expenses.forEach(e => {
@@ -328,7 +384,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const expenses = [];
     for (const m of months) {
       const sum = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
+        { $match: { userId: createObjectId(userId), date: { $gte: m.start, $lt: m.end } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       expenses.push({ month: m.start.toISOString().slice(0, 7), total: sum[0]?.total || 0 });
@@ -340,9 +396,9 @@ async function executeDataPlan(plan, userId, originalSentence) {
   // 14. Spending after salary credit: "Do I spend more after salary credit?"
   if (/spend more after salary credit|salary credit spending/i.test(plan) || /spend more after salary credit|salary credit spending/i.test(originalSentence)) {
     // Find all salary income dates
-    const salaries = await Income.find({ userId: mongoose.Types.ObjectId(userId), source: /salary/i });
+    const salaries = await Income.find({ userId: createObjectId(userId), source: /salary/i });
     let afterSalary = 0, other = 0, afterCount = 0, otherCount = 0;
-    const expenses = await Expense.find({ userId: mongoose.Types.ObjectId(userId) });
+    const expenses = await Expense.find({ userId: createObjectId(userId) });
     for (const s of salaries) {
       // Expenses in 5 days after salary
       const start = new Date(s.date);
@@ -380,17 +436,17 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const match = plan.match(/last (\d+) (expenses|incomes)/i);
     const count = match ? parseInt(match[1]) : 5;
     if (/expenses/i.test(plan)) {
-      const data = await Expense.find({ userId: mongoose.Types.ObjectId(userId) }).sort({ date: -1 }).limit(count);
+      const data = await Expense.find({ userId: createObjectId(userId) }).sort({ date: -1 }).limit(count);
       return { answer: `Here are your last ${count} expenses: ${data.map(e => `${e.category} $${e.amount}`).join(", ")}`, data };
     } else {
-      const data = await Income.find({ userId: mongoose.Types.ObjectId(userId) }).sort({ date: -1 }).limit(count);
+      const data = await Income.find({ userId: createObjectId(userId) }).sort({ date: -1 }).limit(count);
       return { answer: `Here are your last ${count} incomes: ${data.map(i => `${i.source} $${i.amount}`).join(", ")}`, data };
     }
   }
   // 4. Total expenses
   if (/total expenses/i.test(plan)) {
     const data = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: createObjectId(userId) } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     return { answer: `Your total expenses are $${data[0]?.total || 0}.`, data };
@@ -398,7 +454,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
   // 5. Total income
   if (/total income/i.test(plan)) {
     const data = await Income.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: createObjectId(userId) } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     return { answer: `Your total income is $${data[0]?.total || 0}.`, data };
@@ -406,11 +462,11 @@ async function executeDataPlan(plan, userId, originalSentence) {
   // 6. Current balance
   if (/current balance/i.test(plan)) {
     const expenses = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: createObjectId(userId) } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const income = await Income.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: createObjectId(userId) } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const balance = (income[0]?.total || 0) - (expenses[0]?.total || 0);
@@ -430,7 +486,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       // Use case-insensitive, partial match
       const regex = new RegExp(cat, 'i');
       const data = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), category: { $regex: regex } } },
+        { $match: { userId: createObjectId(userId), category: { $regex: regex } } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       if (data.length > 0) {
