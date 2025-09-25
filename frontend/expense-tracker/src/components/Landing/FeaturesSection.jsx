@@ -59,6 +59,16 @@ const FeaturesSection = () => {
       title: "Secure & Private",
       description: "Your financial data is encrypted and protected with the highest security standards.",
     },
+    {
+      icon: HiBellAlert,
+      title: "Smart Reminders",
+      description: "Never miss a bill or payment! TrackO sends timely reminders for upcoming expenses and due dates.",
+    },
+    {
+      icon: HiCurrencyDollar,
+      title: "Multi-Currency Support",
+      description: "Manage your finances across different currencies effortlessly. TrackO converts and tracks expenses globally.",
+    },    
   ];
 
   return (
