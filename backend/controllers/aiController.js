@@ -7,6 +7,40 @@ const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
 });
 
+// Helper: Check if the question is relevant to financial data
+async function checkRelevance(sentence) {
+  const prompt = `Determine if the following sentence is relevant to personal finance, budgeting, expenses, income, or financial data analysis. 
+  
+  RELEVANT topics include:
+  - Adding expenses or income
+  - Questions about spending, earnings, budgets
+  - Financial analysis, trends, patterns
+  - Money management, savings, financial goals
+  - Transaction history, financial summaries
+  
+  NOT RELEVANT topics include:
+  - General knowledge questions
+  - Weather, news, sports, entertainment
+  - Technical support, app usage
+  - Personal advice unrelated to finances
+  - Questions about other people's finances
+  
+  Sentence: "${sentence}"
+  
+  Reply with only 'relevant' or 'not_relevant'.`;
+  
+  const completion = await openai.chat.completions.create({
+    model: 'openai/gpt-3.5-turbo',
+    messages: [
+      { role: 'system', content: 'You are a relevance classifier for a personal finance assistant.' },
+      { role: 'user', content: prompt }
+    ],
+    max_tokens: 10,
+    temperature: 0,
+  });
+  return completion.choices[0].message.content.trim().toLowerCase();
+}
+
 // Helper: Classify user input as query or add command
 async function classifyInput(sentence) {
   const prompt = `Classify the following sentence as either 'add' (if the user wants to add an expense or income) or 'query' (if the user is asking about their finances). Only reply with 'add' or 'query'.\nSentence: "${sentence}"`;
@@ -426,15 +460,34 @@ exports.parseSentence = async (req, res) => {
     return res.status(400).json({ error: 'Sentence is required.' });
   }
   try {
-    // 1. Classify input
+    // 1. First check if the question is relevant to financial data
+    const relevance = await checkRelevance(sentence);
+    if (relevance === 'not_relevant') {
+      return res.json({ 
+        isRelevant: false, 
+        answer: "I can only help with financial questions related to your expenses, income, budgets, and financial insights. Please ask me something about your finances!" 
+      });
+    }
+
+    // 2. Classify input as add or query
     const intent = await classifyInput(sentence);
     if (intent === 'add') {
-      // Old add logic
-      const prompt = `Extract the following from the sentence: (1) type: income or expense, (2) amount (number), (3) description (short text, or null if not present).\nSentence: "${sentence}"\nReturn as JSON: {\"type\":...,\"amount\":...,\"description\":...}`;
+      // Enhanced add logic with better error handling
+      const prompt = `Extract the following from the sentence: (1) type: income or expense, (2) amount (number), (3) description (short text, or null if not present).
+      
+      Examples:
+      "I spent $50 on groceries" => {"type": "expense", "amount": 50, "description": "groceries"}
+      "Received $2000 from salary" => {"type": "income", "amount": 2000, "description": "salary"}
+      "Paid $25 for coffee" => {"type": "expense", "amount": 25, "description": "coffee"}
+      "Got $500 from freelance work" => {"type": "income", "amount": 500, "description": "freelance work"}
+      
+      Sentence: "${sentence}"
+      Return as JSON: {"type":...,"amount":...,"description":...}`;
+      
       const completion = await openai.chat.completions.create({
         model: 'openai/gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: 'You are a helpful assistant that extracts structured data from financial sentences.' },
+          { role: 'system', content: 'You are a helpful assistant that extracts structured data from financial sentences. Always return valid JSON.' },
           { role: 'user', content: prompt }
         ],
         max_tokens: 100,
@@ -444,32 +497,64 @@ exports.parseSentence = async (req, res) => {
       let parsed;
       try {
         parsed = JSON.parse(text);
+        // Validate the parsed data
+        if (!parsed.type || !parsed.amount || !parsed.description) {
+          throw new Error('Missing required fields');
+        }
+        if (!['income', 'expense'].includes(parsed.type.toLowerCase())) {
+          throw new Error('Invalid type');
+        }
+        if (isNaN(parsed.amount) || parsed.amount <= 0) {
+          throw new Error('Invalid amount');
+        }
       } catch (e) {
         return res.status(500).json({ error: 'Failed to parse AI response.', raw: text });
       }
-      return res.json(parsed);
+      return res.json({ ...parsed, isRelevant: true });
     } else if (intent === 'query') {
-      // 2. Use LLM to generate a plan for the query
+      // 3. Use LLM to generate a plan for the query
       const plan = await generateDataPlan(sentence);
-      // 3. Fetch data based on plan
+      // 4. Fetch data based on plan
       const { answer, data } = await executeDataPlan(plan, userId, sentence);
-      // 4. Use LLM to generate a natural language answer (RAG)
-      const answerPrompt = `Given the following data: ${JSON.stringify(data)}, answer the user's question: "${sentence}"`;
-      const answerCompletion = await openai.chat.completions.create({
-        model: 'openai/gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'You are a helpful assistant that answers user questions about their finances.' },
-          { role: 'user', content: answerPrompt }
-        ],
-        max_tokens: 250,
-        temperature: 0.2,
+      
+      // 5. Use LLM to generate a natural language answer (RAG)
+      let finalAnswer;
+      if (answer) {
+        finalAnswer = answer;
+      } else {
+        const answerPrompt = `Given the following financial data: ${JSON.stringify(data)}, provide a helpful and accurate answer to the user's question: "${sentence}"
+
+        Guidelines:
+        - Be concise but informative
+        - Use the actual data provided
+        - If no data is available, say so clearly
+        - Format numbers with $ symbols
+        - Be encouraging and helpful
+        - Don't make up data that isn't provided`;
+        
+        const answerCompletion = await openai.chat.completions.create({
+          model: 'openai/gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a helpful financial assistant that provides accurate insights based on user data.' },
+            { role: 'user', content: answerPrompt }
+          ],
+          max_tokens: 300,
+          temperature: 0.2,
+        });
+        finalAnswer = answerCompletion.choices[0].message.content.trim();
+      }
+      
+      return res.json({ 
+        answer: finalAnswer, 
+        plan,
+        isRelevant: true,
+        data: data || null
       });
-      const finalAnswer = answerCompletion.choices[0].message.content.trim();
-      return res.json({ answer: finalAnswer, plan });
     } else {
       return res.status(400).json({ error: 'Could not classify input.' });
     }
   } catch (error) {
+    console.error('AI Controller Error:', error);
     res.status(500).json({ error: error.message });
   }
 }; 
