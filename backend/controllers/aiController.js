@@ -1,11 +1,9 @@
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Expense = require('../models/Expense');
 const Income = require('../models/Income');
 const mongoose = require('mongoose');
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1",
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const gemini = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // Helper: Check if the question is relevant to financial data
 async function checkRelevance(sentence) {
@@ -29,31 +27,15 @@ async function checkRelevance(sentence) {
   
   Reply with only 'relevant' or 'not_relevant'.`;
   
-  const completion = await openai.chat.completions.create({
-    model: 'openai/gpt-3.5-turbo',
-    messages: [
-      { role: 'system', content: 'You are a relevance classifier for a personal finance assistant.' },
-      { role: 'user', content: prompt }
-    ],
-    max_tokens: 10,
-    temperature: 0,
-  });
-  return completion.choices[0].message.content.trim().toLowerCase();
+  const result = await gemini.generateContent(prompt);
+  return result.response.text().trim().toLowerCase();
 }
 
 // Helper: Classify user input as query or add command
 async function classifyInput(sentence) {
   const prompt = `Classify the following sentence as either 'add' (if the user wants to add an expense or income) or 'query' (if the user is asking about their finances). Only reply with 'add' or 'query'.\nSentence: "${sentence}"`;
-  const completion = await openai.chat.completions.create({
-    model: 'openai/gpt-3.5-turbo',
-    messages: [
-      { role: 'system', content: 'You are a classifier.' },
-      { role: 'user', content: prompt }
-    ],
-    max_tokens: 10,
-    temperature: 0,
-  });
-  return completion.choices[0].message.content.trim().toLowerCase();
+  const result = await gemini.generateContent(prompt);
+  return result.response.text().trim().toLowerCase();
 }
 
 // Helper: Generate a data plan for the query, with few-shot examples
@@ -61,16 +43,8 @@ async function generateDataPlan(sentence) {
   const planPrompt = `Given the user's sentence, describe in one sentence what data to fetch from the user's finances (expenses, income, budgets, goals, etc).\nUse the following examples to help you generalize:\n
 "I earned ₹10,000 today." => add income ₹10,000 for today\n"Add my salary of ₹25,000." => add income ₹25,000, category salary\n"How much did I earn this month?" => sum all income for current month\n"Show my total income in June." => sum all income for June\n"Which source gave me the most income?" => group income by source, return top\n"I spent ₹300 on groceries." => add expense ₹300, category groceries\n"Add ₹1200 for electricity bill." => add expense ₹1200, category electricity\n"Show my total expenses this month." => sum all expenses for current month\n"How much did I spend on food?" => sum all expenses, category food\n"What’s my biggest spending category?" => group expenses by category, return top\n"Are my expenses increasing?" => compare total expenses this month to last month\n"Set a budget of ₹10,000 for groceries this month." => set budget ₹10,000, category groceries, period current month\n"Am I exceeding my grocery budget?" => compare total expenses in groceries to budget for groceries\n"Give me a summary of my finances." => summarize total income, total expenses, balance\n"How much did I save this month?" => income minus expenses for current month\n"Suggest how to reduce expenses." => analyze expenses, suggest categories to cut\n"I want to save ₹50,000 in 6 months — how?" => savings plan for ₹50,000 in 6 months\n"Where is all my money going?" => group expenses by category, show top categories\n"Show me last month." => show summary for last month\n"What’s my average monthly expense?" => average expenses per month\n"How much did I spend in the first week of this month?" => sum expenses for first week of current month\n"What can you do?" => list bot capabilities\n"How’s my spending vibe?" => analyze spending patterns, give fun feedback\n
 Now, for the following sentence, reply with a one-sentence data plan:\nSentence: "${sentence}"`;
-  const planCompletion = await openai.chat.completions.create({
-    model: 'openai/gpt-3.5-turbo',
-    messages: [
-      { role: 'system', content: 'You are a helpful assistant that creates a data fetch plan.' },
-      { role: 'user', content: planPrompt }
-    ],
-    max_tokens: 80,
-    temperature: 0,
-  });
-  return planCompletion.choices[0].message.content.trim();
+  const result = await gemini.generateContent(planPrompt);
+  return result.response.text().trim();
 }
 
 // Helper: Execute the data plan (expanded for spending pattern analysis)
@@ -459,6 +433,9 @@ exports.parseSentence = async (req, res) => {
   if (!sentence) {
     return res.status(400).json({ error: 'Sentence is required.' });
   }
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(503).json({ error: "AI not configured. Set GEMINI_API_KEY." });
+  }
   try {
     // 1. First check if the question is relevant to financial data
     const relevance = await checkRelevance(sentence);
@@ -484,16 +461,8 @@ exports.parseSentence = async (req, res) => {
       Sentence: "${sentence}"
       Return as JSON: {"type":...,"amount":...,"description":...}`;
       
-      const completion = await openai.chat.completions.create({
-        model: 'openai/gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'You are a helpful assistant that extracts structured data from financial sentences. Always return valid JSON.' },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 100,
-        temperature: 0,
-      });
-      const text = completion.choices[0].message.content;
+      const result = await gemini.generateContent(prompt);
+      const text = result.response.text();
       let parsed;
       try {
         parsed = JSON.parse(text);
@@ -532,16 +501,8 @@ exports.parseSentence = async (req, res) => {
         - Be encouraging and helpful
         - Don't make up data that isn't provided`;
         
-        const answerCompletion = await openai.chat.completions.create({
-          model: 'openai/gpt-3.5-turbo',
-          messages: [
-            { role: 'system', content: 'You are a helpful financial assistant that provides accurate insights based on user data.' },
-            { role: 'user', content: answerPrompt }
-          ],
-          max_tokens: 300,
-          temperature: 0.2,
-        });
-        finalAnswer = answerCompletion.choices[0].message.content.trim();
+        const result = await gemini.generateContent(answerPrompt);
+        finalAnswer = result.response.text().trim();
       }
       
       return res.json({ 
