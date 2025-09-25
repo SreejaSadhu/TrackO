@@ -1,6 +1,7 @@
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import { useState } from "react";
-import { LuMic, LuMicOff, LuMessageCircle, LuPlus, LuBrain, LuHelpCircle } from "react-icons/lu";
+import { LuMic, LuMicOff, LuPlus, LuBrain } from "react-icons/lu";
+import { AiOutlineMessage, AiOutlineQuestionCircle } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import VoiceAgent from "../../components/VoiceAgent";
 
@@ -109,7 +110,7 @@ export default function VoiceAssistant() {
                 {/* Instructions */}
                 <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
                   <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <LuHelpCircle className="text-primary" />
+                    <AiOutlineQuestionCircle className="text-primary" />
                     How to Use Voice Input
                   </h3>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -169,7 +170,7 @@ export default function VoiceAssistant() {
                 {/* Suggested Questions */}
                 <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
                   <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <LuMessageCircle className="text-primary" />
+                    <AiOutlineMessage className="text-primary" />
                     Try These Questions
                   </h3>
                   <div className="grid md:grid-cols-2 gap-3">
