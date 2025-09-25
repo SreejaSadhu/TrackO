@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPaths";
-import { LuMic, LuMicOff, LuSend, LuLoader2, LuCheckCircle, LuXCircle, LuMessageCircle } from "react-icons/lu";
+import { LuMic, LuMicOff, LuSend, LuCheckCircle, LuXCircle, LuMessageCircle } from "react-icons/lu";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
@@ -276,7 +277,7 @@ export default function VoiceAgent({ mode = "add" }) {
           <div className="flex justify-start">
             <div className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md px-4 py-3 max-w-xs">
               <div className="flex items-center gap-2">
-                <LuLoader2 className="animate-spin" size={16} />
+                <AiOutlineLoading3Quarters className="animate-spin" size={16} />
                 <span className="text-sm">TrackO-Bot is thinking...</span>
               </div>
             </div>
@@ -327,7 +328,7 @@ export default function VoiceAgent({ mode = "add" }) {
                 onClick={handleConfirm}
                 disabled={loading}
               >
-                {loading ? <LuLoader2 className="animate-spin" size={16} /> : <LuCheckCircle size={16} />}
+                {loading ? <AiOutlineLoading3Quarters className="animate-spin" size={16} /> : <LuCheckCircle size={16} />}
                 Confirm
               </button>
               <button
@@ -385,7 +386,7 @@ export default function VoiceAgent({ mode = "add" }) {
                 onClick={handleManualSubmit}
                 disabled={loading || !manualText.trim()}
               >
-                {loading ? <LuLoader2 className="animate-spin" size={16} /> : <LuSend size={16} />}
+                {loading ? <AiOutlineLoading3Quarters className="animate-spin" size={16} /> : <LuSend size={16} />}
               </button>
             </div>
             <button
