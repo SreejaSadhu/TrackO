@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPaths";
-import { LuMic, LuMicOff, LuSend, LuCheckCircle, LuXCircle, LuMessageCircle } from "react-icons/lu";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { LuMic, LuMicOff, LuSend } from "react-icons/lu";
+import { AiOutlineLoading3Quarters, AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineMessage } from "react-icons/ai";
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
@@ -229,7 +229,7 @@ export default function VoiceAgent({ mode = "add" }) {
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-            <LuMessageCircle className="text-primary" size={20} />
+            <AiOutlineMessage className="text-primary" size={20} />
           </div>
           <div>
             <h3 className="font-semibold text-gray-800">
@@ -246,7 +246,7 @@ export default function VoiceAgent({ mode = "add" }) {
       <div className="h-80 overflow-y-auto p-4 space-y-4">
         {chat.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <LuMessageCircle size={48} className="mx-auto mb-3 opacity-50" />
+            <AiOutlineMessage size={48} className="mx-auto mb-3 opacity-50" />
             <p className="text-sm">
               {mode === "add" 
                 ? "Start by speaking or typing to add a transaction" 
@@ -289,14 +289,14 @@ export default function VoiceAgent({ mode = "add" }) {
       <div className="p-4 border-t border-gray-100">
         {error && (
           <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-            <LuXCircle className="text-red-500" size={16} />
+            <AiOutlineCloseCircle className="text-red-500" size={16} />
             <span className="text-red-700 text-sm">{error}</span>
           </div>
         )}
         
         {success && (
           <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-            <LuCheckCircle className="text-green-500" size={16} />
+            <AiOutlineCheckCircle className="text-green-500" size={16} />
             <span className="text-green-700 text-sm">{success}</span>
           </div>
         )}
@@ -328,7 +328,7 @@ export default function VoiceAgent({ mode = "add" }) {
                 onClick={handleConfirm}
                 disabled={loading}
               >
-                {loading ? <AiOutlineLoading3Quarters className="animate-spin" size={16} /> : <LuCheckCircle size={16} />}
+                {loading ? <AiOutlineLoading3Quarters className="animate-spin" size={16} /> : <AiOutlineCheckCircle size={16} />}
                 Confirm
               </button>
               <button
