@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { HiChartPie, HiArrowDownTray, HiWallet, HiShieldCheck } from 'react-icons/hi2';
+import { HiChartPie, HiArrowDownTray, HiWallet, HiShieldCheck,HiBellAlert,HiCurrencyDollar } from 'react-icons/hi2';
 import { LuMic } from 'react-icons/lu';
 import { MdAutoGraph } from 'react-icons/md';
 import PropTypes from 'prop-types';
