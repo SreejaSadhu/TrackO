@@ -36,8 +36,8 @@ const SignUpForm = () => {
       return;
     }
 
-    if (!password) {
-      setError("Please enter the password");
+    if (!password || password.length < 8) {
+      setError("Please enter the correct password");
       return;
     }
 
