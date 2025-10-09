@@ -71,8 +71,8 @@ exports.googleCallback = (req, res) => {
   try {
     const token = generateToken(req.user._id);
     
-    // Redirect to frontend with token
-    const redirectUrl = `${process.env.CLIENT_URL}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`;
+    // Redirect directly to dashboard instead of callback
+    const redirectUrl = `${process.env.CLIENT_URL}/dashboard?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`;
     res.redirect(redirectUrl);
   } catch (error) {
     res.redirect(`${process.env.CLIENT_URL}/login?error=authentication_failed`);
