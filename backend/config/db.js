@@ -7,11 +7,9 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       bufferCommands: false,
-      bufferMaxEntries: 0,
-      // Keep connection alive
-      keepAlive: true,
-      keepAliveInitialDelay: 300000
     });
+    
+    console.log("MongoDB connected");
     
     // Handle connection events
     mongoose.connection.on('connected', () => {
