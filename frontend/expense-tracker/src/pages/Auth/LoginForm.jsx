@@ -84,23 +84,7 @@ const LoginForm = () => {
         <p className="text-xs text-slate-700 mt-[5px] mb-6">
           Please enter your details to log in
         </p>
-
-        {/* Google Login Button */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors"
-        >
-          <FcGoogle size={20} />
-          <span className="text-gray-700 font-medium">Continue with Google</span>
-        </button>
-
-        <div className="flex items-center my-4">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-3 text-gray-500 text-sm">or</span>
-          <div className="flex-1 border-t border-gray-300"></div>
-        </div>
-
+  
         <form onSubmit={handleLogin}>
           <Input
             value={email}
@@ -109,7 +93,7 @@ const LoginForm = () => {
             placeholder="john@example.com"
             type="text"
           />
-
+  
           <Input
             value={password}
             onChange={({ target }) => setPassword(target.value)}
@@ -117,20 +101,36 @@ const LoginForm = () => {
             placeholder="Min 8 Characters"
             type="password"
           />
-
+  
           {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
-
+  
           <button type="submit" className="btn-primary">
             LOGIN
           </button>
-
-          <p className="text-[13px] text-slate-800 mt-3">
-            Don't have an account?{" "}
-            <Link className="font-medium text-primary underline" to="/signup">
-              SignUp
-            </Link>
-          </p>
         </form>
+  
+        <div className="flex items-center my-4">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <span className="px-3 text-gray-500 text-sm">or</span>
+          <div className="flex-1 border-t border-gray-300"></div>
+        </div>
+  
+        {/* Google Login Button - Below the form */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <FcGoogle size={20} />
+          <span className="text-gray-700 font-medium">Continue with Google</span>
+        </button>
+  
+        <p className="text-[13px] text-slate-800 mt-3">
+          Don't have an account?{" "}
+          <Link className="font-medium text-primary underline" to="/signup">
+            SignUp
+          </Link>
+        </p>
       </div>
     </AuthLayout>
   );
