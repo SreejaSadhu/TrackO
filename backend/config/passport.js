@@ -9,7 +9,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   return;
 }
 const callbackURL = process.env.NODE_ENV === 'production'
-  ? `${process.env.BACKEND_URL}/api/v1/auth/google/callback`
+  ? "https://tracko-53r1.onrender.com/api/v1/auth/google/callback"
   : "/api/v1/auth/google/callback";
 
 passport.use(new GoogleStrategy({
