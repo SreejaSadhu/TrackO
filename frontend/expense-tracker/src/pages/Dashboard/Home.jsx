@@ -17,12 +17,13 @@ import { UserContext } from "../../context/UserContext";
 
 const Home = () => {
   useUserAuth();
-
+  const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // OAuth callback handling
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -34,13 +35,12 @@ const Home = () => {
         localStorage.setItem("token", token);
         updateUser(userData);
         
-        // Clear URL parameters to clean up the URL
+        // Clear URL parameters
         window.history.replaceState({}, document.title, window.location.pathname);
         
         console.log('OAuth login successful!');
       } catch (error) {
         console.error('Error processing OAuth callback:', error);
-        // Redirect to login if there's an error
         navigate('/login?error=oauth_failed');
       }
     }
