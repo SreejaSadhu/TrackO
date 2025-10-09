@@ -15,7 +15,7 @@ const callbackURL = process.env.NODE_ENV === 'production'
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL:callbackURL: callbackURL
+  callbackURL:callbackURL
   }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check if user already exists with Google ID
