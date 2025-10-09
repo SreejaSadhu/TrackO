@@ -9,6 +9,7 @@ const {
   registerUser,
   loginUser,
   getUserInfo,
+  googleCallback
 } = require("./controllers/authController");
 const { protect } = require("./middleware/authMiddleware");
 const upload = require("./middleware/uploadMiddleware");
@@ -68,14 +69,6 @@ app.get("/api/health", (req, res) => {
 
 app.get("/test", (req, res) => {
   res.json({ message: "Test endpoint working" });
-});
-
-app.get("/api/v1/auth/test", (req, res) => {
-  res.json({ message: "Auth GET route working" });
-});
-
-app.post("/api/v1/auth/test", (req, res) => {
-  res.json({ message: "Auth POST route working" });
 });
 
 // Debug: Log when mounting routes
