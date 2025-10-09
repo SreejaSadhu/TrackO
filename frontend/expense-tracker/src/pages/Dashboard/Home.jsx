@@ -22,8 +22,9 @@ const Home = () => {
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false);
 
-  // OAuth callback handling
+  // OAuth callback handling - runs only once
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -47,7 +48,8 @@ const Home = () => {
   }, [updateUser, navigate]);
 
   const fetchDashboardData = async () => {
-    if (loading) return;
+    // Prevent multiple simultaneous calls
+    if (loading || dataFetched) return;
 
     setLoading(true);
 
@@ -58,19 +60,29 @@ const Home = () => {
 
       if (response.data) {
         setDashboardData(response.data);
+        setDataFetched(true);
       }
     } catch (error) {
       console.log("Something went wrong. Please try again.", error);
+      setDataFetched(false); // Allow retry on error
     } finally {
       setLoading(false);
     }
   };
 
+  // Optimized data fetching - only fetch once
   useEffect(() => {
-    fetchDashboardData();
+    if (!dataFetched && !loading) {
+      fetchDashboardData();
+    }
+  }, [dataFetched, loading]);
 
-    return () => {};
-  }, []);
+  // Add refresh function for manual refresh
+  const refreshData = () => {
+    setDataFetched(false);
+    setDashboardData(null);
+    fetchDashboardData();
+  };
 
   return (
     <DashboardLayout activeMenu="Dashboard">
