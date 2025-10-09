@@ -88,17 +88,17 @@ export default function VoiceAssistant() {
                     <div>
                       <h4 className="font-semibold text-gray-800 mb-2">For Expenses:</h4>
                       <ul className="space-y-1 text-gray-600">
-                        <li>• "I spent $50 on groceries"</li>
-                        <li>• "Add $25 for coffee"</li>
-                        <li>• "Paid $100 for gas"</li>
+                        <li>• "I spent ₹50 on groceries"</li>
+                        <li>• "Add ₹25 for coffee"</li>
+                        <li>• "Paid ₹100 for gas"</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-800 mb-2">For Income:</h4>
                       <ul className="space-y-1 text-gray-600">
-                        <li>• "Received $2000 from salary"</li>
-                        <li>• "Got $500 from freelance"</li>
-                        <li>• "Earned $100 from side job"</li>
+                        <li>• "Received ₹2000 from salary"</li>
+                        <li>• "Got ₹500 from freelance"</li>
+                        <li>• "Earned ₹100 from side job"</li>
                       </ul>
                     </div>
                   </div>

@@ -81,7 +81,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $match: { userId: createObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
-    return { answer: `You spent $${data[0]?.total || 0} this month.`, data };
+    return { answer: `You spent ₹${data[0]?.total || 0} this month.`, data };
   }
   
   // Add monthly income queries
@@ -94,7 +94,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $match: { userId: createObjectId(userId), date: { $gte: thisMonth, $lt: nextMonth } } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
-    return { answer: `You earned $${data[0]?.total || 0} this month.`, data };
+    return { answer: `You earned ₹${data[0]?.total || 0} this month.`, data };
   }
   
   // Add general expense queries
@@ -104,7 +104,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $match: { userId: createObjectId(userId) } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
-    return { answer: `Your total expenses are $${data[0]?.total || 0}.`, data };
+    return { answer: `Your total expenses are ₹${data[0]?.total || 0}.`, data };
   }
   
   // Add most spent category queries
@@ -117,7 +117,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $limit: 1 }
     ]);
     if (data.length > 0) {
-      return { answer: `Your biggest spending category is ${data[0]._id} with $${data[0].total}.`, data };
+      return { answer: `Your biggest spending category is ${data[0]._id} with ₹${data[0].total}.`, data };
     } else {
       return { answer: "No expenses found to determine your biggest spending category.", data: [] };
     }
@@ -132,7 +132,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $limit: 1 }
     ]);
     if (data.length > 0) {
-      return { answer: `You spend most of your money on ${data[0]._id} ($${data[0].total}).`, data };
+      return { answer: `You spend most of your money on ${data[0]._id} (₹${data[0].total}).`, data };
     } else {
       return { answer: "No expenses found to determine top category.", data: [] };
     }
@@ -330,7 +330,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const data = { weekend, weekday };
     return { answer: null, data };
   }
-  // 11. Average monthly expense: "What’s my average monthly expense?"
+  // 11. Average monthly expense: "What's my average monthly expense?"
   if (/average monthly expense/i.test(plan) || /average monthly expense/i.test(originalSentence)) {
     const now = new Date();
     const months = [];
@@ -437,10 +437,10 @@ async function executeDataPlan(plan, userId, originalSentence) {
     const count = match ? parseInt(match[1]) : 5;
     if (/expenses/i.test(plan)) {
       const data = await Expense.find({ userId: createObjectId(userId) }).sort({ date: -1 }).limit(count);
-      return { answer: `Here are your last ${count} expenses: ${data.map(e => `${e.category} $${e.amount}`).join(", ")}`, data };
+      return { answer: `Here are your last ${count} expenses: ${data.map(e => `${e.category} ₹${e.amount}`).join(", ")}`, data };
     } else {
       const data = await Income.find({ userId: createObjectId(userId) }).sort({ date: -1 }).limit(count);
-      return { answer: `Here are your last ${count} incomes: ${data.map(i => `${i.source} $${i.amount}`).join(", ")}`, data };
+      return { answer: `Here are your last ${count} incomes: ${data.map(i => `${i.source} ₹${i.amount}`).join(", ")}`, data };
     }
   }
   // 4. Total expenses
@@ -449,7 +449,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $match: { userId: createObjectId(userId) } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
-    return { answer: `Your total expenses are $${data[0]?.total || 0}.`, data };
+    return { answer: `Your total expenses are ₹${data[0]?.total || 0}.`, data };
   }
   // 5. Total income
   if (/total income/i.test(plan)) {
@@ -457,7 +457,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $match: { userId: createObjectId(userId) } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
-    return { answer: `Your total income is $${data[0]?.total || 0}.`, data };
+    return { answer: `Your total income is ₹${data[0]?.total || 0}.`, data };
   }
   // 6. Current balance
   if (/current balance/i.test(plan)) {
@@ -470,7 +470,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const balance = (income[0]?.total || 0) - (expenses[0]?.total || 0);
-    return { answer: `Your current balance is $${balance}.`, data: { expenses, income } };
+    return { answer: `Your current balance is ₹${balance}.`, data: { expenses, income } };
   }
   // 15. Category-specific spending: "How much did I spend on X?"
   const categoryMatch = plan.match(/category ([^\s]+)|on ([^\s]+)|for ([^\s]+)/i);
@@ -490,7 +490,7 @@ async function executeDataPlan(plan, userId, originalSentence) {
         { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
       if (data.length > 0) {
-        return { answer: `You spent $${data[0].total} on ${cat}.`, data };
+        return { answer: `You spent ₹${data[0].total} on ${cat}.`, data };
       } else {
         return { answer: `No expenses found for category matching '${cat}'.`, data: [] };
       }
@@ -526,10 +526,10 @@ exports.parseSentence = async (req, res) => {
       const prompt = `Extract the following from the sentence: (1) type: income or expense, (2) amount (number), (3) description (short text, or null if not present).
       
       Examples:
-      "I spent $50 on groceries" => {"type": "expense", "amount": 50, "description": "groceries"}
-      "Received $2000 from salary" => {"type": "income", "amount": 2000, "description": "salary"}
-      "Paid $25 for coffee" => {"type": "expense", "amount": 25, "description": "coffee"}
-      "Got $500 from freelance work" => {"type": "income", "amount": 500, "description": "freelance work"}
+      "I spent ₹50 on groceries" => {"type": "expense", "amount": 50, "description": "groceries"}
+      "Received ₹2000 from salary" => {"type": "income", "amount": 2000, "description": "salary"}
+      "Paid ₹25 for coffee" => {"type": "expense", "amount": 25, "description": "coffee"}
+      "Got ₹500 from freelance work" => {"type": "income", "amount": 500, "description": "freelance work"}
       
       Sentence: "${sentence}"
       Return as JSON: {"type":...,"amount":...,"description":...}`;
@@ -570,7 +570,7 @@ exports.parseSentence = async (req, res) => {
         - Be concise but informative
         - Use the actual data provided
         - If no data is available, say so clearly
-        - Format numbers with $ symbols
+        - Format numbers with ₹ symbols
         - Be encouraging and helpful
         - Don't make up data that isn't provided`;
         
@@ -591,4 +591,4 @@ exports.parseSentence = async (req, res) => {
     console.error('AI Controller Error:', error);
     res.status(500).json({ error: error.message });
   }
-}; 
+}
