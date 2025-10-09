@@ -34,17 +34,6 @@ const Footer = () => {
             <p className="text-gray-400 text-sm">
               © {new Date().getFullYear()} TrackO. All rights reserved.
             </p>
-            <div className="flex space-x-6">
-              <Link to="/privacy" className="text-gray-400 hover:text-primary text-sm transition-colors">
-                Privacy Policy
-              </Link>
-              <Link to="/terms" className="text-gray-400 hover:text-primary text-sm transition-colors">
-                Terms of Service
-              </Link>
-              <Link to="/cookies" className="text-gray-400 hover:text-primary text-sm transition-colors">
-                Cookie Policy
-              </Link>
-            </div>
           </div>
         </div>
       </div>
