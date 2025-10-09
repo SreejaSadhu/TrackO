@@ -78,21 +78,6 @@ app.post("/api/v1/auth/test", (req, res) => {
   res.json({ message: "Auth POST route working" });
 });
 
-// Auth routes with actual functionality
-app.post("/api/v1/auth/register", registerUser);
-app.post("/api/v1/auth/login", loginUser);
-app.get("/api/v1/auth/getUser", protect, getUserInfo);
-
-app.post("/api/v1/auth/upload-image", upload.single("image"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
-    req.file.filename
-  }`;
-  res.status(200).json({ imageUrl });
-});
-
 // Debug: Log when mounting routes
 console.log("Mounting API routes...");
 
