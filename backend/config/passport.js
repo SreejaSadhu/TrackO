@@ -8,12 +8,15 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   module.exports = passport;
   return;
 }
+const callbackURL = process.env.NODE_ENV === 'production'
+  ? `${process.env.CLIENT_URL}/api/v1/auth/google/callback`
+  : "/api/v1/auth/google/callback";
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/api/v1/auth/google/callback"
-}, async (accessToken, refreshToken, profile, done) => {
+  callbackURL:callbackURL: callbackURL
+  }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check if user already exists with Google ID
     let user = await User.findOne({ googleId: profile.id });
