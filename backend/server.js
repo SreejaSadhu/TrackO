@@ -101,7 +101,7 @@ app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/budget", budgetRoutes);
 app.use("/api/v1/ai", aiRoutes);
-
+app.use("/api/v1/auth", authRoutes);
 // Serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
