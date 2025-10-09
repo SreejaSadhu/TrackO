@@ -22,6 +22,10 @@ const Navigation = () => {
     };
   }, []);
 
+  const menuItems = [
+    { label: 'Features', href: '#features' },
+  ];
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
       <div className="max-w-[1440px] mx-auto px-6 lg:px-8">
