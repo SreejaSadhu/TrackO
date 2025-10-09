@@ -48,26 +48,6 @@ const FeaturesSection = () => {
       icon: HiWallet,
       title: "Budget Planning",
       description: "Set budgets for different categories and stay on top of your financial goals.",
-    },
-    {
-      icon: HiArrowDownTray,
-      title: "Reports & Analytics",
-      description: "Get detailed insights into your spending habits with visual reports and analytics.",
-    },
-    {
-      icon: HiShieldCheck,
-      title: "Secure & Private",
-      description: "Your financial data is encrypted and protected with the highest security standards.",
-    },
-    {
-      icon: HiBellAlert,
-      title: "Smart Reminders",
-      description: "Never miss a bill or payment! TrackO sends timely reminders for upcoming expenses and due dates.",
-    },
-    {
-      icon: HiCurrencyDollar,
-      title: "Multi-Currency Support",
-      description: "Manage your finances across different currencies effortlessly. TrackO converts and tracks expenses globally.",
     },    
   ];
 

@@ -78,35 +78,6 @@ export default function VoiceAssistant() {
                 transition={{ duration: 0.4 }}
                 className="max-w-2xl mx-auto"
               >
-                {/* Voice Input Section */}
-                <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 mb-6">
-                  <div className="text-center">
-                    <motion.button
-                      className={`rounded-full p-12 shadow-2xl mb-6 flex items-center justify-center mx-auto transition-all duration-300 ${
-                        showAgent 
-                          ? "bg-gradient-to-r from-primary to-primary/80 text-white scale-110" 
-                          : "bg-white text-primary hover:shadow-xl"
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setShowAgent(!showAgent)}
-                      aria-label="Toggle voice input"
-                    >
-                      {showAgent ? <LuMicOff size={80} /> : <LuMic size={80} />}
-                    </motion.button>
-                    
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                      {showAgent ? "Listening..." : "Start Speaking"}
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                      {showAgent 
-                        ? "Speak your transaction details" 
-                        : "Click the mic to add income or expenses with your voice"
-                      }
-                    </p>
-                  </div>
-                </div>
-
                 {/* Instructions */}
                 <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
                   <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -117,33 +88,24 @@ export default function VoiceAssistant() {
                     <div>
                       <h4 className="font-semibold text-gray-800 mb-2">For Expenses:</h4>
                       <ul className="space-y-1 text-gray-600">
-                        <li>• &quot;I spent $50 on groceries&quot;</li>
-                        <li>• &quot;Add $25 for coffee&quot;</li>
-                        <li>• &quot;Paid $100 for gas&quot;</li>
+                        <li>• "I spent $50 on groceries"</li>
+                        <li>• "Add $25 for coffee"</li>
+                        <li>• "Paid $100 for gas"</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-800 mb-2">For Income:</h4>
                       <ul className="space-y-1 text-gray-600">
-                        <li>• &quot;Received $2000 from salary&quot;</li>
-                        <li>• &quot;Got $500 from freelance&quot;</li>
-                        <li>• &quot;Earned $100 from side job&quot;</li>
+                        <li>• "Received $2000 from salary"</li>
+                        <li>• "Got $500 from freelance"</li>
+                        <li>• "Earned $100 from side job"</li>
                       </ul>
                     </div>
                   </div>
                 </div>
 
                 {/* Voice Agent Component */}
-                {showAgent && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <VoiceAgent mode="add" />
-                  </motion.div>
-                )}
+                <VoiceAgent mode="add" />
               </motion.div>
             )}
 
@@ -154,7 +116,7 @@ export default function VoiceAssistant() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -30 }}
                 transition={{ duration: 0.4 }}
-                className="max-w-4xl mx-auto"
+                className="max-w-6xl mx-auto"
               >
                 {/* Ask Section Header */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-6">
@@ -167,33 +129,42 @@ export default function VoiceAssistant() {
                   </div>
                 </div>
 
-                {/* Suggested Questions */}
-                <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
-                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <AiOutlineMessage className="text-primary" />
-                    Try These Questions
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {suggestedQuestions.map((question, index) => (
-                      <motion.button
-                        key={index}
-                        className="text-left p-3 bg-gray-50 hover:bg-primary/10 rounded-lg transition-colors duration-200 border border-gray-200 hover:border-primary/30"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => {
-                          // This will be handled by the VoiceAgent component
-                          const event = new CustomEvent('suggestedQuestion', { detail: question });
-                          window.dispatchEvent(event);
-                        }}
-                      >
-                        <span className="text-gray-700 text-sm">{question}</span>
-                      </motion.button>
-                    ))}
+                {/* Side by side layout for questions and voice agent */}
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {/* Suggested Questions */}
+                  <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <AiOutlineMessage className="text-primary" />
+                      Try These Questions
+                    </h3>
+                    <div className="space-y-3">
+                      {suggestedQuestions.map((question, index) => (
+                        <motion.button
+                          key={index}
+                          className="w-full text-left p-3 bg-gray-50 hover:bg-primary/10 rounded-lg transition-colors duration-200 border border-gray-200 hover:border-primary/30"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            // This will be handled by the VoiceAgent component
+                            const event = new CustomEvent('suggestedQuestion', { detail: question });
+                            window.dispatchEvent(event);
+                          }}
+                        >
+                          <span className="text-gray-700 text-sm">{question}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Voice Agent for Questions */}
+                  <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <LuBrain className="text-primary" />
+                      Ask Questions
+                    </h3>
+                    <VoiceAgent mode="ask" />
                   </div>
                 </div>
-
-                {/* Voice Agent for Questions */}
-                <VoiceAgent mode="ask" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -201,4 +172,4 @@ export default function VoiceAssistant() {
       </div>
     </DashboardLayout>
   );
-} 
+}

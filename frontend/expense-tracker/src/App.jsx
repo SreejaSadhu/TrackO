@@ -14,6 +14,9 @@ import SmartBudget from "./pages/Dashboard/SmartBudget";
 import VoiceAssistant from "./pages/Dashboard/VoiceAssistant";
 import LoginForm from "./pages/Auth/LoginForm";
 import SignUpForm from "./pages/Auth/SignUpForm";
+// Add this import and route
+import AuthCallback from "./pages/Auth/AuthCallback";
+
 
 const App = () => {
   return (
@@ -25,6 +28,7 @@ const App = () => {
             <Route path="/app" element={<Root />} />
             <Route path="/login" exact element={<LoginForm />} />
             <Route path="/signUp" exact element={<SignUpForm />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/dashboard" exact element={<Home />} />
             <Route path="/income" exact element={<Income />} />
             <Route path="/expense" exact element={<Expense />} />

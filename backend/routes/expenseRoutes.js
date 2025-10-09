@@ -9,10 +9,14 @@ const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/add", protect, addExpense);
-router.get("/get", protect, getAllExpenses);
-router.get("/downloadexcel", protect, downloadExpenseExcel);
-router.delete("/:id", protect, deleteExpense);
+// Add async error wrapper
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
+router.post("/add", protect, asyncHandler(addExpense));
+router.get("/get", protect, asyncHandler(getAllExpenses));
+router.get("/downloadexcel", protect, asyncHandler(downloadExpenseExcel));
+router.delete("/:id", protect, asyncHandler(deleteExpense));
 
 module.exports = router;

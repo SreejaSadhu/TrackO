@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const session = require("express-session");
+const passport = require("./config/passport");
 const connectDB = require("./config/db");
 const {
   registerUser,
@@ -38,74 +40,21 @@ app.use(
 // Handle preflight requests
 app.options('*', cors());
 
+// Session configuration for Passport
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set to true in production with HTTPS
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 connectDB();
 
-// Test routes - define these first
-app.get("/", (req, res) => {
-  res.json({ message: "Root endpoint working" });
-});
-
-app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", message: "TrackO API is running" });
-});
-
-app.get("/test", (req, res) => {
-  res.json({ message: "Test endpoint working" });
-});
-
-app.get("/api/v1/auth/test", (req, res) => {
-  res.json({ message: "Auth GET route working" });
-});
-
-app.post("/api/v1/auth/test", (req, res) => {
-  res.json({ message: "Auth POST route working" });
-});
-
-// Auth routes with actual functionality
-app.post("/api/v1/auth/register", registerUser);
-app.post("/api/v1/auth/login", loginUser);
-app.get("/api/v1/auth/getUser", protect, getUserInfo);
-
-app.post("/api/v1/auth/upload-image", upload.single("image"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
-    req.file.filename
-  }`;
-  res.status(200).json({ imageUrl });
-});
-
-// Debug: Log when mounting routes
-console.log("Mounting API routes...");
-
-app.use("/api/v1/income", incomeRoutes);
-app.use("/api/v1/expense", expenseRoutes);
-app.use("/api/v1/dashboard", dashboardRoutes);
-app.use("/api/v1/budget", budgetRoutes);
-app.use("/api/v1/ai", aiRoutes);
-
-// Serve uploads folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// Handle all other routes (this should be LAST)
-app.use("*", (req, res) => {
-  console.log(`Route not found: ${req.method} ${req.url}`);
-  res.status(404).json({ error: "Route not found" });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
-});
-
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// ... rest of your existing code ...

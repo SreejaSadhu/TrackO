@@ -66,6 +66,19 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+// Google OAuth Callback
+exports.googleCallback = (req, res) => {
+  try {
+    const token = generateToken(req.user._id);
+    
+    // Redirect to frontend with token
+    const redirectUrl = `${process.env.CLIENT_URL}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`;
+    res.redirect(redirectUrl);
+  } catch (error) {
+    res.redirect(`${process.env.CLIENT_URL}/login?error=authentication_failed`);
+  }
+};
+
 // Get User Info
 exports.getUserInfo = async (req, res) => {
   try {
