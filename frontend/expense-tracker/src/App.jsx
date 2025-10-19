@@ -11,6 +11,7 @@ import Home from "./pages/Dashboard/Home";
 import Income from "./pages/Dashboard/Income";
 import Expense from "./pages/Dashboard/Expense";
 import SmartBudget from "./pages/Dashboard/SmartBudget";
+import AIAnalysis from "./pages/Dashboard/AIAnalysis";
 import VoiceAssistant from "./pages/Dashboard/VoiceAssistant";
 import LoginForm from "./pages/Auth/LoginForm";
 import SignUpForm from "./pages/Auth/SignUpForm";
@@ -33,6 +34,7 @@ const App = () => {
             <Route path="/income" exact element={<Income />} />
             <Route path="/expense" exact element={<Expense />} />
             <Route path="/smartbudget" exact element={<SmartBudget />} />
+            <Route path="/aianalysis" exact element={<AIAnalysis />} />
             <Route path="/voice-assistant" exact element={<VoiceAssistant />} />
           </Routes>
         </Router>
