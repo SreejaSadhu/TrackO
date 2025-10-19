@@ -1,0 +1,92 @@
+{
+  "Food & Drinks": {
+    "keywords": ["restaurant", "cafe", "coffee", "starbucks", "mcdonald", "kfc", "pizza", "burger", "food", "dining", "lunch", "dinner", "breakfast", "snack", "meal", "eat", "drink", "beverage", "bar", "pub"],
+    "subcategories": ["Restaurant", "Cafe", "Fast Food", "Bar", "Street Food"],
+    "icon": "🍔",
+    "color": "#FF6B6B"
+  },
+  "Food Delivery": {
+    "keywords": ["swiggy", "zomato", "ubereats", "delivery", "food delivery", "order food", "online food"],
+    "subcategories": ["Swiggy", "Zomato", "Uber Eats", "Other Delivery"],
+    "icon": "🛵",
+    "color": "#FF8C42"
+  },
+  "Shopping": {
+    "keywords": ["amazon", "flipkart", "myntra", "shopping", "clothes", "fashion", "shoes", "accessories", "electronics", "gadgets", "online shopping", "mall", "store", "retail"],
+    "subcategories": ["Clothing", "Electronics", "Accessories", "Online Shopping", "Retail"],
+    "icon": "🛍️",
+    "color": "#4ECDC4"
+  },
+  "Groceries": {
+    "keywords": ["grocery", "supermarket", "vegetables", "fruits", "milk", "bread", "eggs", "meat", "provisions", "bigbasket", "grofers", "blinkit", "zepto", "dunzo"],
+    "subcategories": ["Vegetables", "Fruits", "Dairy", "Staples", "Online Grocery"],
+    "icon": "🛒",
+    "color": "#95E1D3"
+  },
+  "Transportation": {
+    "keywords": ["uber", "ola", "taxi", "cab", "bus", "train", "metro", "auto", "rickshaw", "fuel", "petrol", "diesel", "gas", "parking", "toll", "transport", "travel", "commute"],
+    "subcategories": ["Taxi/Cab", "Public Transport", "Fuel", "Parking", "Toll"],
+    "icon": "🚗",
+    "color": "#F38181"
+  },
+  "Entertainment": {
+    "keywords": ["movie", "cinema", "netflix", "prime", "spotify", "hotstar", "disney", "gaming", "game", "concert", "show", "theatre", "entertainment", "subscription", "music", "streaming"],
+    "subcategories": ["Movies", "Streaming", "Gaming", "Concerts", "Events"],
+    "icon": "🎬",
+    "color": "#AA96DA"
+  },
+  "Utilities": {
+    "keywords": ["electricity", "water", "gas", "internet", "wifi", "broadband", "phone", "mobile", "recharge", "bill", "utility", "maintenance"],
+    "subcategories": ["Electricity", "Water", "Internet", "Phone", "Gas"],
+    "icon": "💡",
+    "color": "#FCBAD3"
+  },
+  "Healthcare": {
+    "keywords": ["doctor", "hospital", "clinic", "medicine", "pharmacy", "medical", "health", "checkup", "treatment", "insurance", "dental", "eye", "lab", "test"],
+    "subcategories": ["Doctor", "Medicine", "Hospital", "Lab Tests", "Insurance"],
+    "icon": "🏥",
+    "color": "#FF6B9D"
+  },
+  "Housing": {
+    "keywords": ["rent", "mortgage", "emi", "housing", "apartment", "flat", "home", "property", "maintenance", "society"],
+    "subcategories": ["Rent", "EMI", "Maintenance", "Property Tax"],
+    "icon": "🏠",
+    "color": "#C7CEEA"
+  },
+  "Education": {
+    "keywords": ["school", "college", "university", "course", "tuition", "books", "education", "learning", "training", "workshop", "seminar", "study", "fees"],
+    "subcategories": ["Tuition", "Books", "Courses", "Fees", "Training"],
+    "icon": "📚",
+    "color": "#B4E7CE"
+  },
+  "Personal Care": {
+    "keywords": ["salon", "spa", "haircut", "grooming", "cosmetics", "beauty", "personal care", "hygiene", "skincare", "makeup"],
+    "subcategories": ["Salon", "Spa", "Cosmetics", "Grooming"],
+    "icon": "💅",
+    "color": "#FFB6B9"
+  },
+  "Fitness": {
+    "keywords": ["gym", "fitness", "yoga", "sports", "exercise", "workout", "trainer", "health club", "swimming", "cycling"],
+    "subcategories": ["Gym", "Yoga", "Sports", "Trainer"],
+    "icon": "💪",
+    "color": "#FEC8D8"
+  },
+  "Insurance": {
+    "keywords": ["insurance", "premium", "policy", "life insurance", "health insurance", "car insurance", "term insurance"],
+    "subcategories": ["Life Insurance", "Health Insurance", "Vehicle Insurance", "Term Insurance"],
+    "icon": "🛡️",
+    "color": "#957DAD"
+  },
+  "Investments": {
+    "keywords": ["investment", "mutual fund", "stocks", "shares", "sip", "fd", "fixed deposit", "savings", "portfolio", "trading"],
+    "subcategories": ["Mutual Funds", "Stocks", "FD", "SIP", "Bonds"],
+    "icon": "📈",
+    "color": "#5E63B6"
+  },
+  "Miscellaneous": {
+    "keywords": ["other", "misc", "miscellaneous", "general", "various", "others"],
+    "subcategories": ["Other"],
+    "icon": "📦",
+    "color": "#A8DADC"
+  }
+}

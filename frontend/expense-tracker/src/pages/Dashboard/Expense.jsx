@@ -45,10 +45,15 @@ const Expense = () => {
 
   // Handle Add Expense
   const handleAddExpense = async (expense) => {
-    const { category, amount, date, icon } = expense;
+    const { name, category, subCategory, amount, date, icon } = expense;
 
     // Validation Checks
-    if (!category.trim()) {
+    if (!name || !name.trim()) {
+      toast.error("Expense name is required.");
+      return;
+    }
+
+    if (!category || !category.trim()) {
       toast.error("Category is required.");
       return;
     }
@@ -65,8 +70,10 @@ const Expense = () => {
 
     try {
       await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, {
+        name,
         category,
-        amount: amount, // The amount will now be in Rupees
+        subCategory,
+        amount: amount,
         date,
         icon,
       });
@@ -79,6 +86,7 @@ const Expense = () => {
         "Error adding expense:",
         error.response?.data?.message || error.message
       );
+      toast.error(error.response?.data?.message || "Failed to add expense");
     }
   };
 

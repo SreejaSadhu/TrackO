@@ -6,17 +6,19 @@ exports.addExpense = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const { icon, category, amount, date } = req.body;
+    const { name, icon, category, subCategory, amount, date } = req.body;
 
     // Validation: Check for missing fields
-    if (!category || !amount || !date) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!name || !category || !amount || !date) {
+      return res.status(400).json({ message: "Name, category, amount, and date are required" });
     }
 
     const newExpense = new Expense({
       userId,
+      name,
       icon,
       category,
+      subCategory,
       amount,
       date: new Date(date),
     });
@@ -24,7 +26,8 @@ exports.addExpense = async (req, res) => {
     await newExpense.save();
     res.status(200).json(newExpense);
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    console.error('Error adding expense:', error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -58,7 +61,9 @@ exports.downloadExpenseExcel = async (req, res) => {
 
     // Prepare data for Excel
     const data = expense.map((item) => ({
+      Name: item.name || 'Unnamed',
       Category: item.category,
+      SubCategory: item.subCategory || '',
       Amount: item.amount,
       Date: item.date,
     }));

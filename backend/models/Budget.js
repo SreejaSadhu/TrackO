@@ -13,6 +13,14 @@ const budgetSchema = new mongoose.Schema({
   amount: {
     type: Number,
     required: true
+  },
+  month: {
+    type: Number,
+    min: 1,
+    max: 12
+  },
+  year: {
+    type: Number
   }
 }, {
   timestamps: true
