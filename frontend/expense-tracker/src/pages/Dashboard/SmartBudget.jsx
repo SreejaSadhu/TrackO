@@ -11,7 +11,9 @@ const SmartBudget = () => {
   useUserAuth();
   const [budgets, setBudgets] = useState([]);
   const [expenseData, setExpenseData] = useState([]);
+  const [insights, setInsights] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [insightsLoading, setInsightsLoading] = useState(false);
 
   // Get All Expense Details
   const fetchExpenseDetails = async () => {
@@ -42,11 +44,28 @@ const SmartBudget = () => {
     }
   };
 
+  // Fetch budget insights
+  const fetchInsights = async () => {
+    setInsightsLoading(true);
+    try {
+      const response = await axiosInstance.get('/api/v1/budget/insights');
+      if (response.data) {
+        setInsights(response.data);
+      }
+    } catch (error) {
+      console.log("Error fetching insights", error);
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
+
   // Save budgets to backend
   const saveBudgets = async (updatedBudgets) => {
     try {
       await axiosInstance.post('/api/v1/budget/save', { budgets: updatedBudgets });
       setBudgets(updatedBudgets);
+      // Refresh insights after budget update
+      fetchInsights();
     } catch (error) {
       console.log("Error saving budgets", error);
     }
@@ -54,7 +73,8 @@ const SmartBudget = () => {
 
   useEffect(() => {
     fetchExpenseDetails();
-    fetchBudgets(); // Fetch initial budgets
+    fetchBudgets();
+    fetchInsights();
     return () => {};
   }, []);
 
@@ -95,7 +115,14 @@ const SmartBudget = () => {
         {budgets.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">📊 Budget Insights</h2>
-            <BudgetInsightsCard />
+            {insightsLoading ? (
+              <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Generating insights...</p>
+              </div>
+            ) : (
+              <BudgetInsightsCard insights={insights} />
+            )}
           </div>
         )}
 

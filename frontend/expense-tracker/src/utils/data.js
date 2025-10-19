@@ -3,8 +3,9 @@ import {
   LuHandCoins,
   LuWalletMinimal,
   LuLogOut,
-  LuPiggyBank, // Add this import
+  LuPiggyBank,
   LuMic,
+  LuSparkles,
 } from "react-icons/lu";
 
 export const SIDE_MENU_DATA = [
@@ -34,12 +35,18 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: "05",
+    label: "AI Analysis",
+    icon: LuSparkles,
+    path: "/aianalysis",
+  },
+  {
+    id: "06",
     label: "Voice Assistant",
     icon: LuMic,
     path: "/voice-assistant",
   },
   {
-    id: "06",
+    id: "07",
     label: "Logout",
     icon: LuLogOut,
     path: "logout",
