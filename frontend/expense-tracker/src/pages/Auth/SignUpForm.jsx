@@ -13,41 +13,74 @@ const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
 
   const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // Handle Google OAuth callback
-  useEffect(() => {
-    const token = searchParams.get('token');
-    const user = searchParams.get('user');
-    
-    if (token && user) {
-      try {
-        const userData = JSON.parse(decodeURIComponent(user));
-        localStorage.setItem("token", token);
-        updateUser(userData);
-        navigate("/dashboard");
-      } catch (error) {
-        setError("Authentication failed. Please try again.");
-      }
-    }
-  }, [searchParams, updateUser, navigate]);
-
   // Handle Google OAuth
   const handleGoogleSignup = () => {
+    setIsLoading(true);
     window.location.href = `${import.meta.env.VITE_API_URL}/api/v1/auth/google`;
   };
 
   // Handle Signup Form Submit
   const handleSignup = async (e) => {
     e.preventDefault();
-    // ... your existing signup logic
+
+    if (!fullName) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password || password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+        fullName,
+        email,
+        password,
+      });
+      const { token, user } = response.data;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        updateUser(user);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+      setIsLoading(false);
+    }
   };
 
   return (
     <AuthLayout>
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="mt-4 text-gray-700 font-medium">Creating your account...</p>
+          </div>
+        </div>
+      )}
       <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center">
         <h3 className="text-xl font-semibold text-black">Create Account</h3>
         <p className="text-xs text-slate-700 mt-[5px] mb-6">
@@ -81,8 +114,8 @@ const SignUpForm = () => {
   
           {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
   
-          <button type="submit" className="btn-primary">
-            SIGN UP
+          <button type="submit" className="btn-primary" disabled={isLoading}>
+            {isLoading ? "Signing up..." : "SIGN UP"}
           </button>
         </form>
   
@@ -96,7 +129,8 @@ const SignUpForm = () => {
         <button
           type="button"
           onClick={handleGoogleSignup}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          disabled={isLoading}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <FcGoogle size={20} />
           <span className="text-gray-700 font-medium">Continue with Google</span>
