@@ -18,6 +18,20 @@ const LoginForm = () => {
   const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
+  // Check for OAuth errors in URL
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      const errorMessages = {
+        'authentication_failed': 'Google authentication failed. Please try again.',
+        'parsing_failed': 'Failed to process authentication data. Please try again.',
+        'missing_data': 'Authentication data is missing. Please try again.',
+        'authentication_timeout': 'Authentication timed out. Please check your backend configuration and try again.'
+      };
+      setError(errorMessages[errorParam] || 'An error occurred during authentication.');
+    }
+  }, [searchParams]);
+
   // Handle Google OAuth
   const handleGoogleLogin = () => {
     setIsLoading(true);
