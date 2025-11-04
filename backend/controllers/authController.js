@@ -71,11 +71,19 @@ exports.googleCallback = (req, res) => {
   try {
     const token = generateToken(req.user._id);
     
+    // Get client URL with fallback
+    const clientUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+    
+    // Log for debugging
+    console.log('OAuth Callback - Redirecting to:', clientUrl);
+    
     // Redirect to auth/callback page to handle authentication gracefully
-    const redirectUrl = `${process.env.CLIENT_URL}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`;
+    const redirectUrl = `${clientUrl}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`;
     res.redirect(redirectUrl);
   } catch (error) {
-    res.redirect(`${process.env.CLIENT_URL}/login?error=authentication_failed`);
+    console.error('OAuth Callback Error:', error);
+    const clientUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+    res.redirect(`${clientUrl}/login?error=authentication_failed`);
   }
 };
 

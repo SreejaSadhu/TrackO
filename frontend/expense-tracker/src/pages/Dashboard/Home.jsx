@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
 import { IoMdCard } from "react-icons/io";
@@ -13,39 +13,14 @@ import ExpenseTransactions from "../../components/Dashboard/ExpenseTransactions"
 import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
 import RecentIncome from "../../components/Dashboard/RecentIncome";
 import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart";
-import { UserContext } from "../../context/UserContext";
 
 const Home = () => {
   useUserAuth();
-  const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
-
-  // OAuth callback handling - runs only once
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const user = urlParams.get('user');
-    
-    if (token && user) {
-      try {
-        const userData = JSON.parse(decodeURIComponent(user));
-        localStorage.setItem("token", token);
-        updateUser(userData);
-        
-        // Clear URL parameters
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        console.log('OAuth login successful!');
-      } catch (error) {
-        console.error('Error processing OAuth callback:', error);
-        navigate('/login?error=oauth_failed');
-      }
-    }
-  }, [updateUser, navigate]);
 
   const fetchDashboardData = async () => {
     // Prevent multiple simultaneous calls
